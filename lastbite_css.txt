@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat:wght@400;700&family=Lobster&family=Monoton&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display+SC:ital,wght@0,400;0,700;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,700&family=Work+Sans:ital,wght@0,400;0,700;1,700&display=swap');
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.logo {
+    height: 90px;
+    width: 160px;
+}
+
+.navbar-bgcolor {
+    background-color: #acb0a7 !important;
+}
+
+.bg {
+    background-image: url("https://cdn.pixabay.com/photo/2025/03/06/08/25/blueberries-9450130_1280.jpg");
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    margin-top: 105px;
+    padding-top: 200px;
+}
+
+.b1 {
+    color: #0e3859;
+    border-color: #0e3859 !important;
+    border-style: solid !important;
+    border-width: 2px !important;
+    font-weight: 600;
+    font-size: 20px;
+    background-color: #acb0a7;
+}
+
+.b2 {
+    color: white;
+    font-weight: 600;
+    background-color: #0e3859;
+    font-size: 20px;
+}
+
+.b3 {
+    color: white;
+    font-weight: 600;
+    background-color: #0e3859;
+    font-size: 20px;
+}
+
+.head {
+    text-shadow: 0 0 8px black;
+    font-size: 50px;
+    color: white;
+}
+
+.gif {
+    height: 200px;
+    width: 200px;
+}
+
+.text {
+    font-size: 30px;
+    text-shadow: 0 0 5px black;
+    color: white;
+}
+
+.overall {
+    background: rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.overview {
+    width: 100%;
+    margin-top: 180px;
+    color: black;
+    padding: 24px;
+}
+
+.overview-head {
+    font-size: 30px;
+    text-shadow: 0 0 1px black;
+}
+
+.overview-text {
+    font-weight: 500;
+    font-size: 20px;
+}
+
+.aboutus {
+    width: 100%;
+    margin-top: 40px;
+}
+
+.aboutus-head {
+    color: black;
+    text-shadow: 0 0 1px grey;
+    font-size: 30px;
+}
+
+.aboutus-text {
+    font-weight: 500;
+    font-size: 20px;
+    color: black;
+}
+
+.bg3 {
+    background-color: #0d2436;
+}
+
+.follow-us-section {
+    width: 100%;
+    border-bottom: none !important;
+    margin-bottom: 0px;
+}
+
+.follow-us-section-heading {
+    text-align: center;
+    color: #959ead;
+    ;
+    font-family: "Roboto";
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.follow-us-icon-container {
+    background-color: #faf7e8;
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    margin: 15px;
+    padding-top: 22px;
+    padding-bottom: 14px;
+    padding-right: 16px;
+    padding-left: 22px;
+}
+
+.icon {
+    color: #d0b200;
+    font-size: 35px;
+}
+
+.footer-section {
+    width: 100%;
+    border-top: none !important;
+    margin-top: 0px;
+}
+
+.footer-section-mail-id {
+    color: #959ead;
+    font-family: "Roboto";
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.footer-section-address {
+    color: #959ead;
+    font-family: "Roboto";
+    font-size: 14px;
+}
+
+.footer-section-logo {
+    color: #959ead;
+}
+
+.addbutton {
+    font-size: 50px;
+    padding-top: 20px;
+    padding-bottom: 25px;
+    padding-right: 70px;
+    padding-left: 70px;
+    border-color: grey;
+    border-width: 1px;
+    border-style: dashed;
+}
+
+.edithead {
+    margin-top: 100px;
+}
+
+.dish-card {
+    border-radius: 10px;
+}
+
+.img1 {
+    height: 200px;
+    width: 100%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.img2 {
+    height: 200px;
+    width: 100%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.img3 {
+    height: 200px;
+    width: 100%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.img4 {
+    height: 200px;
+    width: 100%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.bg2 {
+    width: 100%;
+}
+
+.delivery-and-payment-section {
+    background-color: white;
+}
+
+.delivery-and-payment-section-img {
+    width: 270px;
+}
+
+.delivery-and-payment-section-heading {
+    color: #183b56;
+    font-family: "Roboto";
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.delivery-and-payment-section-description {
+    color: #5a7184;
+    font-family: "Roboto";
+    font-size: 16px;
+}
+
+.custom-button {
+    color: white;
+    background-image: linear-gradient(#d0b200, #a58d00);
+    width: 130px;
+    height: 45px;
+    border-width: 0;
+    border-radius: 8px;
+    margin-right: 10px;
+}
+
+.payment-card-img {
+    width: 50px;
+    height: 50px;
+    margin-right: 28px;
+}
+
+.thanking-customers-section {
+    background-image: radial-gradient(#fff8db, #fae38c);
+    height: 100vh;
+    padding-top: 200px;
+}
+
+.thanking-customers-section-heading {
+    color: #183b56;
+    font-family: "Roboto";
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.thanking-customers-section-description {
+    color: #5a7184;
+    font-family: "Roboto";
+    font-size: 16px;
+}
+
+.thanking-customers-section-img {
+    width: 270px;
+    margin-bottom: 20px;
+}
+
+.thanking-customers-section-modal-title {
+    color: #d0b200;
+    font-weight: 800;
+}
+
+.upi-icon-container1 {
+    background-color: #faf7e8;
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    margin: 15px;
+    padding-top: 22px;
+    padding-left: 17px;
+}
+
+.upi-icon-container1 button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.upi-icon-container1 button:focus,
+.upi-icon-container1 button:active {
+    outline: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.upi-icon-container2 {
+    background-color: #faf7e8;
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    margin: 15px;
+    padding-top: 22px;
+    padding-left: 17px;
+}
+
+.upi-icon-container2 button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.upi-icon-container2 button:focus,
+.upi-icon-container2 button:active {
+    outline: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.deliveryboy {
+    border-width: 1px;
+    border-color: grey;
+    border-radius: 10px;
+    border-style: solid;
+    margin-bottom: 5px;
+    padding: 7px;
+}
