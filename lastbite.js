@@ -175,10 +175,12 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
 // 4. FEATURE: DISH ADDITION ENGINE
 // ==========================================
 
-function handleAddFoodItem() {
+async function handleAddFoodItem() {
     const modalElement = document.getElementById('exampleModal2');
-    const nameInput = modalElement.querySelectorAll('input[type="text"]')[0];
-    const descInput = modalElement.querySelectorAll('input[type="text"]')[1];
+    const nameInput = document.getElementById('lastbiteItemName') ||
+        modalElement.querySelectorAll('input[type="text"]')[0];
+    const descInput = document.getElementById('lastbiteItemDescription') ||
+        modalElement.querySelectorAll('input[type="text"]')[1];
 
     if (!nameInput || !nameInput.value.trim()) {
         alert("Please enter a valid Item Name.");
@@ -354,7 +356,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initLeafletMap();
     loadFoodItemsFromAPI();
 
-    const addConfirmBtn = document.querySelector('#exampleModal2 .modal-footer .btn-primary');
+    const addConfirmBtn = document.getElementById('addFoodItemConfirmButton') ||
+        document.querySelector('#exampleModal2 .modal-footer .btn-primary');
     if (addConfirmBtn) addConfirmBtn.addEventListener('click', handleAddFoodItem);
 
     // Setup Search Logic
