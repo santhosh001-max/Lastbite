@@ -309,27 +309,27 @@
                                         <label class="col-form-label">Add Image</label>
                                         <div class="text-center">
                                             <!-- Hidden actual native file uploader input -->
-                                            <input type="file" id="foodItemImageUploader" accept="image/*" class="d-none" />
+                                            <input type="file" id="foodItemImageUploader" accept="image/png,image/jpeg,image/webp,image/gif" class="d-none" />
 
                                             <!-- Interactive visual placeholder wrapper -->
                                             <button type="button" class="addbutton" id="imageUploadTrigger" style="overflow: hidden; display: inline-flex; align-items: center; justify-content: center; width: 140px; height: 140px;">
                                                 <span id="triggerPlaceholderText">+</span>
-                                                <img id="uploadPreviewThumbnail" class="d-none" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                <img id="uploadPreviewThumbnail" alt="Selected food preview" class="d-none" style="width: 100%; height: 100%; object-fit: cover;" />
                                             </button>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="recipient-name" class="col-form-label">Item Name</label>
-                                        <input type="text" class="form-control" id="recipient-name">
+                                        <input type="text" class="form-control" id="lastbiteItemName">
                                     </div>
                                     <div class="form-group">
                                         <label for="recipient-name" class="col-form-label">Description</label>
-                                        <input type="text" class="form-control" id="recipient-name">
+                                        <input type="text" class="form-control" id="lastbiteItemDescription">
                                     </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal">Add</button>
+                                <button type="button" class="btn btn-primary" id="addFoodItemConfirmButton">Add</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
