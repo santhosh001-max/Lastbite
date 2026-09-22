@@ -52,6 +52,78 @@ let deliveryDashboardState = {
 let currentUploadedImageBase64 = "";
 let map = null;
 
+
+// ==========================================
+// 1A. BACKEND API CONNECTION
+// ==========================================
+// Change this URL after deploying the Node.js backend.
+// For local development: http://localhost:3000/api
+const API_BASE_URL = window.LASTBITE_API_URL || "http://localhost:3000/api";
+
+function mapApiFoodToUiFood(item) {
+    return {
+        id: item.id,
+        name: item.name,
+        desc: item.description || "Freshly added item.",
+        price: Number(item.price) || 0,
+        img: item.image_url || "https://via.placeholder.com/200"
+    };
+}
+
+async function loadFoodItemsFromAPI() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/foods`);
+        if (!response.ok) throw new Error("Food API request failed.");
+
+        const result = await response.json();
+        if (!result.success || !Array.isArray(result.data)) {
+            throw new Error("Invalid food API response.");
+        }
+
+        foodItems = result.data.map(mapApiFoodToUiFood);
+
+        // Clear dynamically generated cards before rebuilding them.
+        ['sectionfooditemsedit', 'sectionfooditemsbuy'].forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            const row = section ? section.querySelector('.row') : null;
+            if (row) row.querySelectorAll('.dynamic-food-card').forEach(card => card.remove());
+        });
+
+        foodItems.forEach(item => {
+            appendDishCardToContainer('sectionfooditemsedit', item, 'btn-danger', 'Edit');
+            appendDishCardToContainer('sectionfooditemsbuy', item, 'btn-success', 'Order now');
+        });
+
+        console.log("LastBite: food items loaded from database.");
+    } catch (error) {
+        // Keep the existing demo food if the backend is not deployed/reachable yet.
+        console.warn("LastBite backend is not reachable. Using local demo food items.", error);
+    }
+}
+
+async function saveFoodItemToAPI(item) {
+    const response = await fetch(`${API_BASE_URL}/foods`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: item.name,
+            description: item.desc,
+            price: item.price,
+            image_url: item.img
+        })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.message || "Could not save food item.");
+    }
+
+    return mapApiFoodToUiFood(result.data);
+}
+
 // ==========================================
 // 2. CORE UTILITY: NAVIGATION
 // ==========================================
@@ -85,7 +157,7 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
     if (!targetRowElement) return;
 
     const columnWrapper = document.createElement('div');
-    columnWrapper.className = 'col-12 col-md-3';
+    columnWrapper.className = 'col-12 col-md-3 dynamic-food-card';
     columnWrapper.innerHTML = `
         <div class="dish-card shadow mb-3 pb-3">
             <div><img src="${item.img}" class="img4" style="height: 200px; width: 100%; border-top-left-radius: 10px; border-top-right-radius: 10px;" /></div>
@@ -114,18 +186,27 @@ function handleAddFoodItem() {
     }
 
     const newItem = {
-        id: foodItems.length + 1,
         name: nameInput.value.trim(),
         desc: descInput ? descInput.value.trim() : "Freshly added item.",
         price: 50,
         img: currentUploadedImageBase64 || "https://via.placeholder.com/200"
     };
 
-    foodItems.push(newItem);
+    // Save permanently through the Node.js + MySQL backend.
+    // The UI is updated only after the database confirms the insert.
+    let savedItem;
+    try {
+        savedItem = await saveFoodItemToAPI(newItem);
+    } catch (error) {
+        console.error("LastBite save error:", error);
+        alert("Could not save the food item to the database. Please check that the backend is running.");
+        return;
+    }
 
-    // Now this call is safe because the function is defined above
-    appendDishCardToContainer('sectionfooditemsedit', newItem, 'btn-danger', 'Edit');
-    appendDishCardToContainer('sectionfooditemsbuy', newItem, 'btn-success', 'Order now');
+    foodItems.push(savedItem);
+
+    appendDishCardToContainer('sectionfooditemsedit', savedItem, 'btn-danger', 'Edit');
+    appendDishCardToContainer('sectionfooditemsbuy', savedItem, 'btn-success', 'Order now');
 
     // Reset Modal
     nameInput.value = '';
@@ -271,6 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderDeliveryDashboard();
     setupImageUploadLogic();
     initLeafletMap();
+    loadFoodItemsFromAPI();
 
     const addConfirmBtn = document.querySelector('#exampleModal2 .modal-footer .btn-primary');
     if (addConfirmBtn) addConfirmBtn.addEventListener('click', handleAddFoodItem);
