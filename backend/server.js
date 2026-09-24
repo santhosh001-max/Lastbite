@@ -137,7 +137,7 @@ app.put("/api/foods/:id", async (req, res) => {
 app.delete("/api/foods/:id", async (req, res) => {
   try {
     const [result] = await db.query(
-      "DELETE FROM food_items WHERE id = ?",
+      "UPDATE food_items SET status = 'deleted' WHERE id = ? AND status <> 'deleted'",
       [req.params.id]
     );
 
@@ -145,7 +145,7 @@ app.delete("/api/foods/:id", async (req, res) => {
       return res.status(404).json({ success: false, message: "Food item not found." });
     }
 
-    res.json({ success: true, message: "Food item deleted permanently." });
+    res.json({ success: true, message: "Food item deleted successfully." });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Could not delete the food item." });
