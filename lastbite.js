@@ -66,47 +66,37 @@ function mapApiFoodToUiFood(item) {
         name: item.name,
         desc: item.description || "Freshly added item.",
         price: Number(item.price) || 0,
-        img: item.image_url || "https://via.placeholder.com/200"
+        img: item.image_url || "https://via.placeholder.com/400x200?text=No+Image"
     };
+}
+
+async function apiRequest(path, options = {}) {
+    const response = await fetch(API_BASE_URL + path, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+    });
+    let result = {};
+    try { result = await response.json(); } catch (_) {}
+    if (!response.ok || result.success === false) {
+        throw new Error(result.message || "Request failed (" + response.status + ")");
+    }
+    return result;
 }
 
 async function loadFoodItemsFromAPI() {
     try {
-        const response = await fetch(`${API_BASE_URL}/foods`);
-        if (!response.ok) throw new Error("Food API request failed.");
-
-        const result = await response.json();
-        if (!result.success || !Array.isArray(result.data)) {
-            throw new Error("Invalid food API response.");
-        }
-
-        foodItems = result.data.map(mapApiFoodToUiFood);
-
-        // Clear dynamically generated cards before rebuilding them.
-        ['sectionfooditemsedit', 'sectionfooditemsbuy'].forEach(sectionId => {
-            const section = document.getElementById(sectionId);
-            const row = section ? section.querySelector('.row') : null;
-            if (row) row.querySelectorAll('.dynamic-food-card').forEach(card => card.remove());
-        });
-
-        foodItems.forEach(item => {
-            appendDishCardToContainer('sectionfooditemsedit', item, 'btn-danger', 'Edit');
-            appendDishCardToContainer('sectionfooditemsbuy', item, 'btn-success', 'Order now');
-        });
-
+        const result = await apiRequest("/foods");
+        foodItems = Array.isArray(result.data) ? result.data.map(mapApiFoodToUiFood) : [];
+        renderDynamicFoodCards();
         console.log("LastBite: food items loaded from database.");
     } catch (error) {
-        // Keep the existing demo food if the backend is not deployed/reachable yet.
         console.warn("LastBite backend is not reachable. Using local demo food items.", error);
     }
 }
 
 async function saveFoodItemToAPI(item) {
-    const response = await fetch(`${API_BASE_URL}/foods`, {
+    const result = await apiRequest("/foods", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
         body: JSON.stringify({
             name: item.name,
             description: item.desc,
@@ -114,14 +104,23 @@ async function saveFoodItemToAPI(item) {
             image_url: item.img
         })
     });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
-        throw new Error(result.message || "Could not save food item.");
-    }
-
     return mapApiFoodToUiFood(result.data);
+}
+
+async function deleteFoodItemFromAPI(id) {
+    return apiRequest("/foods/" + id, { method: "DELETE" });
+}
+
+function renderDynamicFoodCards() {
+    ["sectionfooditemsedit", "sectionfooditemsbuy"].forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        const row = section ? section.querySelector(".row") : null;
+        if (row) row.querySelectorAll(".dynamic-food-card").forEach(card => card.remove());
+    });
+    foodItems.forEach(item => {
+        appendDishCardToContainer("sectionfooditemsedit", item, "btn-danger", "Delete");
+        appendDishCardToContainer("sectionfooditemsbuy", item, "btn-success", "Order now");
+    });
 }
 
 // ==========================================
@@ -149,26 +148,60 @@ window.display = switchSection;
 // 3. HELPER: UI CARD GENERATOR (Defined early to avoid errors)
 // ==========================================
 
+function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[char]));
+}
+
 function appendDishCardToContainer(sectionId, item, structuralBtnClass, functionalBtnLabel) {
     const sectionBlock = document.getElementById(sectionId);
     if (!sectionBlock) return;
-
-    const targetRowElement = sectionBlock.querySelector('.row');
+    const targetRowElement = sectionBlock.querySelector(".row");
     if (!targetRowElement) return;
 
-    const columnWrapper = document.createElement('div');
-    columnWrapper.className = 'col-12 col-md-3 dynamic-food-card';
-    columnWrapper.innerHTML = `
-        <div class="dish-card shadow mb-3 pb-3">
-            <div><img src="${item.img}" class="img4" style="height: 200px; width: 100%; border-top-left-radius: 10px; border-top-right-radius: 10px;" /></div>
-            <div class="m-2">
-                <h5>Name</h5><p>${item.name}</p>
-                <h5>Description</h5><p>${item.desc}</p>
-                <h5>Price</h5><p>Rs. ${item.price}</p>
-                <button class="btn ${structuralBtnClass}">${functionalBtnLabel}</button>
-            </div>
-        </div>`;
+    const columnWrapper = document.createElement("div");
+    columnWrapper.className = "col-12 col-md-3 dynamic-food-card";
+    columnWrapper.dataset.foodId = item.id;
+
+    let actionButton = '<button type="button" class="btn btn-success">Order now</button>';
+    if (functionalBtnLabel === "Delete") {
+        actionButton = '<button type="button" class="btn btn-danger delete-food-btn" data-food-id="' +
+            escapeHtml(item.id) + '">Delete</button>';
+    }
+
+    columnWrapper.innerHTML =
+        '<div class="dish-card shadow mb-3 pb-3">' +
+        '<div><img src="' + escapeHtml(item.img) + '" class="img4" alt="' + escapeHtml(item.name) +
+        '" style="height: 200px; width: 100%; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;" /></div>' +
+        '<div class="m-2">' +
+        '<h5>Name</h5><p>' + escapeHtml(item.name) + '</p>' +
+        '<h5>Description</h5><p>' + escapeHtml(item.desc) + '</p>' +
+        '<h5>Price</h5><p>Rs. ' + Number(item.price).toFixed(2) + '</p>' +
+        actionButton +
+        '</div></div>';
+
     targetRowElement.appendChild(columnWrapper);
+}
+
+async function handleDeleteFoodItem(id, button) {
+    if (!id || !confirm("Delete this food item permanently?")) return;
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Deleting...";
+    }
+    try {
+        await deleteFoodItemFromAPI(id);
+        foodItems = foodItems.filter(item => String(item.id) !== String(id));
+        renderDynamicFoodCards();
+    } catch (error) {
+        console.error("LastBite delete error:", error);
+        alert("Could not delete the food item. Please check that the backend is running.");
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Delete";
+        }
+    }
 }
 
 // ==========================================
@@ -176,14 +209,21 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
 // ==========================================
 
 async function handleAddFoodItem() {
-    const modalElement = document.getElementById('exampleModal2');
-    const nameInput = document.getElementById('lastbiteItemName') ||
-        modalElement.querySelectorAll('input[type="text"]')[0];
-    const descInput = document.getElementById('lastbiteItemDescription') ||
-        modalElement.querySelectorAll('input[type="text"]')[1];
+    const modalElement = document.getElementById("exampleModal2");
+    const nameInput = document.getElementById("lastbiteItemName");
+    const descInput = document.getElementById("lastbiteItemDescription");
+    const fileInput = document.getElementById("foodItemImageUploader");
+    const previewImg = document.getElementById("uploadPreviewThumbnail");
+    const placeholderText = document.getElementById("triggerPlaceholderText");
+    const statusText = document.getElementById("foodImageUploadStatus");
+    const addButton = document.getElementById("addFoodItemConfirmButton");
 
     if (!nameInput || !nameInput.value.trim()) {
         alert("Please enter a valid Item Name.");
+        return;
+    }
+    if (!currentUploadedImageBase64) {
+        alert("Please select a food image.");
         return;
     }
 
@@ -191,31 +231,39 @@ async function handleAddFoodItem() {
         name: nameInput.value.trim(),
         desc: descInput ? descInput.value.trim() : "Freshly added item.",
         price: 50,
-        img: currentUploadedImageBase64 || "https://via.placeholder.com/200"
+        img: currentUploadedImageBase64
     };
 
-    // Save permanently through the Node.js + MySQL backend.
-    // The UI is updated only after the database confirms the insert.
-    let savedItem;
     try {
-        savedItem = await saveFoodItemToAPI(newItem);
+        if (addButton) { addButton.disabled = true; addButton.textContent = "Saving..."; }
+        if (statusText) statusText.textContent = "Saving food item...";
+
+        const savedItem = await saveFoodItemToAPI(newItem);
+        foodItems.push(savedItem);
+
+        appendDishCardToContainer("sectionfooditemsedit", savedItem, "btn-danger", "Delete");
+        appendDishCardToContainer("sectionfooditemsbuy", savedItem, "btn-success", "Order now");
+
+        nameInput.value = "";
+        if (descInput) descInput.value = "";
+        currentUploadedImageBase64 = "";
+        if (previewImg) { previewImg.src = ""; previewImg.classList.add("d-none"); }
+        if (placeholderText) placeholderText.classList.remove("d-none");
+        if (fileInput) fileInput.value = "";
+        if (statusText) statusText.textContent = "Food item saved successfully.";
+
+        if (window.jQuery && modalElement) window.jQuery(modalElement).modal("hide");
+
+        setTimeout(() => {
+            if (statusText) statusText.textContent = "Click + to choose a food image";
+        }, 1500);
     } catch (error) {
         console.error("LastBite save error:", error);
+        if (statusText) statusText.textContent = "Save failed. Check the backend connection.";
         alert("Could not save the food item to the database. Please check that the backend is running.");
-        return;
+    } finally {
+        if (addButton) { addButton.disabled = false; addButton.textContent = "Add"; }
     }
-
-    foodItems.push(savedItem);
-
-    appendDishCardToContainer('sectionfooditemsedit', savedItem, 'btn-danger', 'Edit');
-    appendDishCardToContainer('sectionfooditemsbuy', savedItem, 'btn-success', 'Order now');
-
-    // Reset Modal
-    nameInput.value = '';
-    if (descInput) descInput.value = '';
-    currentUploadedImageBase64 = "";
-    document.getElementById('uploadPreviewThumbnail').classList.add('d-none');
-    document.getElementById('triggerPlaceholderText').classList.remove('d-none');
 }
 
 // ==========================================
@@ -296,29 +344,34 @@ function setupDynamicFilter(searchInputId, sectionContainerId) {
 // ==========================================
 
 function setupImageUploadLogic() {
-    const fileInput = document.getElementById('foodItemImageUploader');
-    const triggerBtn = document.getElementById('imageUploadTrigger');
-    const previewImg = document.getElementById('uploadPreviewThumbnail');
-    const placeholderText = document.getElementById('triggerPlaceholderText');
-
+    const fileInput = document.getElementById("foodItemImageUploader");
+    const triggerBtn = document.getElementById("imageUploadTrigger");
+    const previewImg = document.getElementById("uploadPreviewThumbnail");
+    const placeholderText = document.getElementById("triggerPlaceholderText");
+    const statusText = document.getElementById("foodImageUploadStatus");
     if (!fileInput || !triggerBtn) return;
 
     triggerBtn.onclick = () => fileInput.click();
 
-    fileInput.onchange = function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                currentUploadedImageBase64 = e.target.result;
-                if (previewImg) {
-                    previewImg.src = e.target.result;
-                    previewImg.classList.remove('d-none');
-                }
-                if (placeholderText) placeholderText.classList.add('d-none');
-            };
-            reader.readAsDataURL(file);
+    fileInput.onchange = function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            alert("Please select an image file.");
+            fileInput.value = "";
+            return;
         }
+        const reader = new FileReader();
+        reader.onload = event => {
+            currentUploadedImageBase64 = event.target.result;
+            if (previewImg) {
+                previewImg.src = currentUploadedImageBase64;
+                previewImg.classList.remove("d-none");
+            }
+            if (placeholderText) placeholderText.classList.add("d-none");
+            if (statusText) statusText.textContent = file.name + " selected";
+        };
+        reader.readAsDataURL(file);
     };
 }
 
@@ -359,6 +412,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const addConfirmBtn = document.getElementById('addFoodItemConfirmButton') ||
         document.querySelector('#exampleModal2 .modal-footer .btn-primary');
     if (addConfirmBtn) addConfirmBtn.addEventListener('click', handleAddFoodItem);
+
+    document.addEventListener("click", event => {
+        const deleteButton = event.target.closest(".delete-food-btn");
+        if (deleteButton) handleDeleteFoodItem(deleteButton.dataset.foodId, deleteButton);
+    });
 
     // Setup Search Logic
     const editSearch = document.querySelector('#sectionfooditemsedit input[placeholder="Search"]');
