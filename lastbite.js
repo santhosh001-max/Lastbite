@@ -242,6 +242,35 @@ function resetFoodModal() {
     window.editingFoodItemId = null;
 }
 
+
+function prepareNewFoodModal() {
+    resetFoodModal();
+
+    const nameInput = document.getElementById("lastbiteItemName");
+    const descInput = document.getElementById("lastbiteItemDescription");
+    const priceInput = document.getElementById("lastbiteItemPrice");
+    const fileInput = document.getElementById("foodItemImageUploader");
+    const previewImg = document.getElementById("uploadPreviewThumbnail");
+    const placeholderText = document.getElementById("triggerPlaceholderText");
+    const statusText = document.getElementById("foodImageUploadStatus");
+
+    if (nameInput) nameInput.value = "";
+    if (descInput) descInput.value = "";
+    if (priceInput) priceInput.value = "";
+    if (fileInput) fileInput.value = "";
+    currentUploadedImageBase64 = "";
+
+    if (previewImg) {
+        previewImg.src = "";
+        previewImg.style.display = "none";
+    }
+    if (placeholderText) {
+        placeholderText.classList.remove("d-none");
+        placeholderText.style.display = "";
+    }
+    if (statusText) statusText.textContent = "Click + to choose a food image";
+}
+
 function openEditFoodItem(id) {
     const item = foodItems.find(food => String(food.id) === String(id));
     if (!item) return;
@@ -620,6 +649,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const addConfirmBtn = document.getElementById('addFoodItemConfirmButton') ||
         document.querySelector('#exampleModal2 .modal-footer .btn-primary');
+    const addFoodItemsButton = document.getElementById("button-addon2");
+    if (addFoodItemsButton) {
+        addFoodItemsButton.addEventListener("click", prepareNewFoodModal);
+    }
+
     if (addConfirmBtn) addConfirmBtn.addEventListener('click', handleAddFoodItem);
 
     const saveEditBtn = document.getElementById("saveFoodItemEditButton");
