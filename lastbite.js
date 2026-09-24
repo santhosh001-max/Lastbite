@@ -59,6 +59,20 @@ let map = null;
 // Change this URL after deploying the Node.js backend.
 // For local development: http://localhost:3000/api
 const API_BASE_URL = window.LASTBITE_API_URL || "http://localhost:3000/api";
+const LOCAL_FOOD_STORAGE_KEY = "lastbite_local_food_items_v1";
+
+function getLocalFoodItems() {
+    try {
+        const items = JSON.parse(localStorage.getItem(LOCAL_FOOD_STORAGE_KEY) || "[]");
+        return Array.isArray(items) ? items : [];
+    } catch (_) {
+        return [];
+    }
+}
+
+function saveLocalFoodItems(items) {
+    localStorage.setItem(LOCAL_FOOD_STORAGE_KEY, JSON.stringify(items));
+}
 
 function mapApiFoodToUiFood(item) {
     return {
@@ -87,10 +101,23 @@ async function loadFoodItemsFromAPI() {
     try {
         const result = await apiRequest("/foods");
         foodItems = Array.isArray(result.data) ? result.data.map(mapApiFoodToUiFood) : [];
+
+        // Include items created while the public backend was unavailable.
+        const localItems = getLocalFoodItems();
+        const ids = new Set(foodItems.map(item => String(item.id)));
+        localItems.forEach(item => {
+            if (!ids.has(String(item.id))) foodItems.push(item);
+        });
+
         renderDynamicFoodCards();
-        console.log("LastBite: food items loaded from database.");
+        console.log("LastBite: food items loaded from backend.");
     } catch (error) {
-        console.warn("LastBite backend is not reachable. Using local demo food items.", error);
+        const localItems = getLocalFoodItems();
+        if (localItems.length) {
+            foodItems = localItems;
+            renderDynamicFoodCards();
+        }
+        console.warn("LastBite backend unavailable. Local persistence is active.", error);
     }
 }
 
@@ -117,6 +144,7 @@ function renderDynamicFoodCards() {
         const row = section ? section.querySelector(".row") : null;
         if (row) row.querySelectorAll(".dynamic-food-card").forEach(card => card.remove());
     });
+
     foodItems.forEach(item => {
         appendDishCardToContainer("sectionfooditemsedit", item, "btn-danger", "Delete");
         appendDishCardToContainer("sectionfooditemsbuy", item, "btn-success", "Order now");
@@ -186,17 +214,30 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
 
 async function handleDeleteFoodItem(id, button) {
     if (!id || !confirm("Delete this food item permanently?")) return;
+
     if (button) {
         button.disabled = true;
         button.textContent = "Deleting...";
     }
+
     try {
-        await deleteFoodItemFromAPI(id);
+        const isLocal = String(id).startsWith("local-");
+
+        if (isLocal) {
+            saveLocalFoodItems(getLocalFoodItems().filter(item => String(item.id) !== String(id)));
+        } else {
+            try {
+                await deleteFoodItemFromAPI(id);
+            } catch (apiError) {
+                console.warn("Backend delete failed; removing local copy.", apiError);
+            }
+        }
+
         foodItems = foodItems.filter(item => String(item.id) !== String(id));
         renderDynamicFoodCards();
     } catch (error) {
         console.error("LastBite delete error:", error);
-        alert("Could not delete the food item. Please check that the backend is running.");
+        alert("Could not delete the food item.");
         if (button) {
             button.disabled = false;
             button.textContent = "Delete";
@@ -223,7 +264,7 @@ async function handleAddFoodItem() {
         return;
     }
     if (!currentUploadedImageBase64) {
-        alert("Please select a food image.");
+        alert("Please select a food image. The selected image must appear in the preview box.");
         return;
     }
 
@@ -238,29 +279,45 @@ async function handleAddFoodItem() {
         if (addButton) { addButton.disabled = true; addButton.textContent = "Saving..."; }
         if (statusText) statusText.textContent = "Saving food item...";
 
-        const savedItem = await saveFoodItemToAPI(newItem);
-        foodItems.push(savedItem);
+        let savedItem;
+        try {
+            savedItem = await saveFoodItemToAPI(newItem);
+            console.log("LastBite: item saved to database.");
+        } catch (apiError) {
+            // GitHub Pages cannot reach localhost. Keep the feature usable until a
+            // public backend URL is configured.
+            savedItem = { ...newItem, id: "local-" + Date.now() };
+            const localItems = getLocalFoodItems();
+            localItems.push(savedItem);
+            saveLocalFoodItems(localItems);
+            console.warn("Backend unavailable; item saved locally.", apiError);
+        }
 
+        foodItems.push(savedItem);
         appendDishCardToContainer("sectionfooditemsedit", savedItem, "btn-danger", "Delete");
         appendDishCardToContainer("sectionfooditemsbuy", savedItem, "btn-success", "Order now");
 
         nameInput.value = "";
         if (descInput) descInput.value = "";
         currentUploadedImageBase64 = "";
-        if (previewImg) { previewImg.src = ""; previewImg.classList.add("d-none"); }
-        if (placeholderText) placeholderText.classList.remove("d-none");
+
+        if (previewImg) {
+            previewImg.src = "";
+            previewImg.style.display = "none";
+            previewImg.classList.add("d-none");
+        }
+        if (placeholderText) {
+            placeholderText.classList.remove("d-none");
+            placeholderText.style.display = "";
+        }
         if (fileInput) fileInput.value = "";
         if (statusText) statusText.textContent = "Food item saved successfully.";
 
         if (window.jQuery && modalElement) window.jQuery(modalElement).modal("hide");
-
-        setTimeout(() => {
-            if (statusText) statusText.textContent = "Click + to choose a food image";
-        }, 1500);
     } catch (error) {
         console.error("LastBite save error:", error);
-        if (statusText) statusText.textContent = "Save failed. Check the backend connection.";
-        alert("Could not save the food item to the database. Please check that the backend is running.");
+        if (statusText) statusText.textContent = "Save failed.";
+        alert("Could not add the food item. Please try again.");
     } finally {
         if (addButton) { addButton.disabled = false; addButton.textContent = "Add"; }
     }
@@ -356,21 +413,37 @@ function setupImageUploadLogic() {
     fileInput.onchange = function () {
         const file = this.files && this.files[0];
         if (!file) return;
+
         if (!file.type.startsWith("image/")) {
             alert("Please select an image file.");
             fileInput.value = "";
             return;
         }
+
         const reader = new FileReader();
         reader.onload = event => {
             currentUploadedImageBase64 = event.target.result;
+
             if (previewImg) {
                 previewImg.src = currentUploadedImageBase64;
                 previewImg.classList.remove("d-none");
+                previewImg.style.display = "block";
+                previewImg.style.visibility = "visible";
+                previewImg.style.opacity = "1";
             }
-            if (placeholderText) placeholderText.classList.add("d-none");
+
+            if (placeholderText) {
+                placeholderText.classList.add("d-none");
+                placeholderText.style.display = "none";
+            }
+
             if (statusText) statusText.textContent = file.name + " selected";
         };
+
+        reader.onerror = () => {
+            alert("The image could not be read. Please choose another image.");
+        };
+
         reader.readAsDataURL(file);
     };
 }
