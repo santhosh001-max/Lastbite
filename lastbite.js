@@ -253,6 +253,7 @@ async function handleAddFoodItem() {
     const modalElement = document.getElementById("exampleModal2");
     const nameInput = document.getElementById("lastbiteItemName");
     const descInput = document.getElementById("lastbiteItemDescription");
+    const priceInput = document.getElementById("lastbiteItemPrice");
     const fileInput = document.getElementById("foodItemImageUploader");
     const previewImg = document.getElementById("uploadPreviewThumbnail");
     const placeholderText = document.getElementById("triggerPlaceholderText");
@@ -268,10 +269,17 @@ async function handleAddFoodItem() {
         return;
     }
 
+    const price = priceInput ? Number(priceInput.value) : NaN;
+    if (!Number.isFinite(price) || price < 0) {
+        alert("Please enter a valid price.");
+        if (priceInput) priceInput.focus();
+        return;
+    }
+
     const newItem = {
         name: nameInput.value.trim(),
         desc: descInput ? descInput.value.trim() : "Freshly added item.",
-        price: 50,
+        price: price,
         img: currentUploadedImageBase64
     };
 
@@ -299,6 +307,7 @@ async function handleAddFoodItem() {
 
         nameInput.value = "";
         if (descInput) descInput.value = "";
+        if (priceInput) priceInput.value = "";
         currentUploadedImageBase64 = "";
 
         if (previewImg) {
