@@ -304,7 +304,8 @@ async function handleAddFoodItem() {
         if (previewImg) {
             previewImg.src = "";
             previewImg.style.display = "none";
-            previewImg.classList.add("d-none");
+            previewImg.classList.remove("d-none");
+            previewImg.style.display = "none";
         }
         if (placeholderText) {
             placeholderText.classList.remove("d-none");
