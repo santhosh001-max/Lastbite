@@ -146,7 +146,7 @@ function renderDynamicFoodCards() {
     });
 
     foodItems.forEach(item => {
-        appendDishCardToContainer("sectionfooditemsedit", item, "btn-danger", "Delete");
+        appendDishCardToContainer("sectionfooditemsedit", item, "btn-danger", "Edit");
         appendDishCardToContainer("sectionfooditemsbuy", item, "btn-success", "Order now");
     });
 }
@@ -193,9 +193,9 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
     columnWrapper.dataset.foodId = item.id;
 
     let actionButton = '<button type="button" class="btn btn-success">Order now</button>';
-    if (functionalBtnLabel === "Delete") {
-        actionButton = '<button type="button" class="btn btn-danger delete-food-btn" data-food-id="' +
-            escapeHtml(item.id) + '">Delete</button>';
+    if (functionalBtnLabel === "Edit") {
+        actionButton = '<button type="button" class="btn btn-danger edit-food-btn" data-food-id="' +
+            escapeHtml(item.id) + '">Edit</button>';
     }
 
     columnWrapper.innerHTML =
@@ -210,6 +210,132 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
         '</div></div>';
 
     targetRowElement.appendChild(columnWrapper);
+}
+
+async function updateFoodItemToAPI(id, item) {
+    const result = await apiRequest("/foods/" + id, {
+        method: "PUT",
+        body: JSON.stringify({
+            name: item.name,
+            description: item.desc,
+            price: item.price,
+            image_url: item.img
+        })
+    });
+    return mapApiFoodToUiFood(result.data);
+}
+
+function resetFoodModal() {
+    const modal = document.getElementById("exampleModal2");
+    const title = modal ? modal.querySelector(".modal-title") : null;
+    const addButton = document.getElementById("addFoodItemConfirmButton");
+    const saveButton = document.getElementById("saveFoodItemEditButton");
+    const deleteButton = document.getElementById("deleteFoodItemEditButton");
+    const closeButton = document.getElementById("closeFoodItemModalButton");
+
+    if (title) title.textContent = "New Food";
+    if (addButton) addButton.classList.remove("d-none");
+    if (saveButton) saveButton.classList.add("d-none");
+    if (deleteButton) deleteButton.classList.add("d-none");
+    if (closeButton) closeButton.textContent = "Close";
+    if (addButton) addButton.disabled = false;
+    window.editingFoodItemId = null;
+}
+
+function openEditFoodItem(id) {
+    const item = foodItems.find(food => String(food.id) === String(id));
+    if (!item) return;
+
+    const modal = document.getElementById("exampleModal2");
+    const title = modal ? modal.querySelector(".modal-title") : null;
+    const nameInput = document.getElementById("lastbiteItemName");
+    const descInput = document.getElementById("lastbiteItemDescription");
+    const priceInput = document.getElementById("lastbiteItemPrice");
+    const previewImg = document.getElementById("uploadPreviewThumbnail");
+    const placeholderText = document.getElementById("triggerPlaceholderText");
+    const statusText = document.getElementById("foodImageUploadStatus");
+
+    window.editingFoodItemId = item.id;
+    currentUploadedImageBase64 = item.img || "";
+
+    if (title) title.textContent = "Edit Food";
+    if (nameInput) nameInput.value = item.name || "";
+    if (descInput) descInput.value = item.desc || "";
+    if (priceInput) priceInput.value = Number(item.price) || 0;
+
+    if (previewImg && item.img) {
+        previewImg.src = item.img;
+        previewImg.style.display = "block";
+        previewImg.style.visibility = "visible";
+        previewImg.style.opacity = "1";
+    }
+    if (placeholderText) {
+        placeholderText.classList.add("d-none");
+        placeholderText.style.display = "none";
+    }
+    if (statusText) statusText.textContent = "Current image";
+
+    document.getElementById("addFoodItemConfirmButton")?.classList.add("d-none");
+    document.getElementById("saveFoodItemEditButton")?.classList.remove("d-none");
+    document.getElementById("deleteFoodItemEditButton")?.classList.remove("d-none");
+
+    if (window.jQuery && modal) window.jQuery(modal).modal("show");
+}
+
+async function handleSaveFoodItemEdit() {
+    const id = window.editingFoodItemId;
+    if (!id) return;
+
+    const nameInput = document.getElementById("lastbiteItemName");
+    const descInput = document.getElementById("lastbiteItemDescription");
+    const priceInput = document.getElementById("lastbiteItemPrice");
+    const saveButton = document.getElementById("saveFoodItemEditButton");
+
+    const name = nameInput ? nameInput.value.trim() : "";
+    const desc = descInput ? descInput.value.trim() : "";
+    const price = priceInput ? Number(priceInput.value) : NaN;
+
+    if (!name) return alert("Please enter a valid Item Name.");
+    if (!Number.isFinite(price) || price < 0) return alert("Please enter a valid price.");
+
+    const updated = { id, name, desc, price, img: currentUploadedImageBase64 || "" };
+
+    try {
+        if (saveButton) { saveButton.disabled = true; saveButton.textContent = "Saving..."; }
+
+        if (String(id).startsWith("local-")) {
+            const locals = getLocalFoodItems().map(item =>
+                String(item.id) === String(id) ? updated : item
+            );
+            saveLocalFoodItems(locals);
+        } else {
+            const saved = await updateFoodItemToAPI(id, updated);
+            updated.img = saved.img;
+        }
+
+        foodItems = foodItems.map(item =>
+            String(item.id) === String(id) ? updated : item
+        );
+        renderDynamicFoodCards();
+
+        if (window.jQuery) window.jQuery("#exampleModal2").modal("hide");
+        resetFoodModal();
+    } catch (error) {
+        console.error("LastBite edit error:", error);
+        alert("Could not save the changes.");
+    } finally {
+        if (saveButton) { saveButton.disabled = false; saveButton.textContent = "Save"; }
+    }
+}
+
+async function handleEditModalDelete() {
+    const id = window.editingFoodItemId;
+    if (!id) return;
+    await handleDeleteFoodItem(id, document.getElementById("deleteFoodItemEditButton"));
+    if (!foodItems.some(item => String(item.id) === String(id))) {
+        if (window.jQuery) window.jQuery("#exampleModal2").modal("hide");
+        resetFoodModal();
+    }
 }
 
 async function handleDeleteFoodItem(id, button) {
@@ -495,6 +621,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const addConfirmBtn = document.getElementById('addFoodItemConfirmButton') ||
         document.querySelector('#exampleModal2 .modal-footer .btn-primary');
     if (addConfirmBtn) addConfirmBtn.addEventListener('click', handleAddFoodItem);
+
+    const saveEditBtn = document.getElementById("saveFoodItemEditButton");
+    const deleteEditBtn = document.getElementById("deleteFoodItemEditButton");
+    if (saveEditBtn) saveEditBtn.addEventListener("click", handleSaveFoodItemEdit);
+    if (deleteEditBtn) deleteEditBtn.addEventListener("click", handleEditModalDelete);
+
+    document.addEventListener("click", event => {
+        const editButton = event.target.closest(".edit-food-btn");
+        if (editButton) openEditFoodItem(editButton.dataset.foodId);
+    });
+
+    const modalElement = document.getElementById("exampleModal2");
+    if (modalElement) modalElement.addEventListener("hidden.bs.modal", resetFoodModal);
 
     document.addEventListener("click", event => {
         const deleteButton = event.target.closest(".delete-food-btn");
