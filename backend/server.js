@@ -156,6 +156,6 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: "API route not found." });
 });
 
-app.listen(PORT, () => {
-  console.log(`LastBite API running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`LastBite API running on 0.0.0.0:${PORT}`);
 });
