@@ -196,7 +196,7 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
     columnWrapper.className = "col-12 col-md-3 dynamic-food-card";
     columnWrapper.dataset.foodId = item.id;
 
-    let actionButton = '<button type="button" class="btn btn-success">Order now</button>';
+    let actionButton = '<button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal6" data-whatever="@order">Order now</button>';
     if (functionalBtnLabel === "Edit") {
         actionButton = '<button type="button" class="btn btn-danger edit-food-btn" data-food-id="' +
             escapeHtml(item.id) + '">Edit</button>';
