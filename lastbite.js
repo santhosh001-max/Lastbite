@@ -536,6 +536,54 @@ function focusMap(lat, lng, name) {
 }
 
 // Ensure the map initializes when the page loads
+async function handleSignup() {
+    const name = document.getElementById("signupName")?.value.trim();
+    const email = document.getElementById("signupEmail")?.value.trim().toLowerCase();
+    const password = document.getElementById("signupPassword")?.value || "";
+    const confirmPassword = document.getElementById("signupConfirmPassword")?.value || "";
+    const role = document.getElementById("signupRole")?.value || "user";
+    const message = document.getElementById("signupMessage");
+    const button = document.getElementById("signupSubmitButton");
+
+    const showMessage = (text, ok) => {
+        if (message) {
+            message.textContent = text;
+            message.className = "small mt-2 " + (ok ? "text-success" : "text-danger");
+        }
+    };
+
+    if (!name || !email || !password || !confirmPassword) {
+        showMessage("Please fill in all fields.", false);
+        return;
+    }
+    if (password.length < 8) {
+        showMessage("Password must contain at least 8 characters.", false);
+        return;
+    }
+    if (password !== confirmPassword) {
+        showMessage("Passwords do not match.", false);
+        return;
+    }
+
+    try {
+        if (button) { button.disabled = true; button.textContent = "Creating..."; }
+        const result = await apiRequest("/auth/signup", {
+            method: "POST",
+            body: JSON.stringify({ name, email, password, role })
+        });
+        showMessage(result.message || "Account created successfully.", true);
+        document.getElementById("signupForm")?.reset();
+        setTimeout(() => {
+            if (window.jQuery) window.jQuery("#signupModal").modal("hide");
+        }, 1000);
+    } catch (error) {
+        console.error("LastBite signup error:", error);
+        showMessage(error.message || "Could not create the account.", false);
+    } finally {
+        if (button) { button.disabled = false; button.textContent = "Create Account"; }
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initLeafletMap();
     // ... your other existing init functions ...
@@ -649,6 +697,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const addConfirmBtn = document.getElementById('addFoodItemConfirmButton') ||
         document.querySelector('#exampleModal2 .modal-footer .btn-primary');
+    const signupButton = document.getElementById("signupSubmitButton");
+    if (signupButton) signupButton.addEventListener("click", handleSignup);
+
     const addFoodItemsButton = document.getElementById("button-addon2");
     if (addFoodItemsButton) {
         addFoodItemsButton.addEventListener("click", prepareNewFoodModal);
