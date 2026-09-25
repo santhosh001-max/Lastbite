@@ -52,6 +52,17 @@ app.post("/api/auth/signup", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+
+    // MySQL duplicate-key protection. The database UNIQUE(email)
+    // constraint is the final protection against registering the same
+    // email more than once, including simultaneous signup requests.
+    if (error && error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email already exists. Please log in instead."
+      });
+    }
+
     res.status(500).json({ success: false, message: "Could not create the account." });
   }
 });
