@@ -4,6 +4,9 @@
 
 const allSections = [
     'sectionhome',
+    'sectionvegetables',
+    'sectionfruits',
+    'sectioncereals',
     'sectionfooditemsedit',
     'sectiondonation',
     'sectionhotels',
