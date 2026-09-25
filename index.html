@@ -92,7 +92,7 @@
                             </button>
                         </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="display('sectionhotels')">Log In</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="display('sectioncustomermenu')">Log In</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -388,6 +388,75 @@
             </div>
         </div>
     </div>
+    <div id="sectioncustomermenu" class="category-page" style="display:none;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white navbar-bgcolor fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand logo" href="#"><img src="https://drive.google.com/thumbnail?id=1Yr360ajL9fNRXZTTZ5xUe_KPqPhud0oP" class="logo" /></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#customerCategoryNav" aria-controls="customerCategoryNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="customerCategoryNav">
+                    <div class="navbar-nav ml-auto">
+                        <button class="nav-link border-0 bg-transparent" type="button" onclick="display('sectionhome')">Home</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mt-5 pt-5">
+            <div class="row">
+                <div class="col-12 mt-4">
+                    <h1>Explore Food Categories</h1>
+                    <p class="text-muted">Choose a category to explore available items.</p>
+                </div>
+
+                <div class="col-12 col-md-3 mb-4">
+                    <div class="dish-card shadow mb-3 pb-3 h-100">
+                        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80" class="img1 w-100" alt="Food">
+                        <div class="m-2">
+                            <h5>Food</h5>
+                            <p>Explore meals, dishes and prepared food available on LastBite.</p>
+                            <button class="btn btn-info" type="button" onclick="display('sectionfooditemsbuy')">View Food</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 mb-4">
+                    <div class="dish-card shadow mb-3 pb-3 h-100">
+                        <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80" class="img1 w-100" alt="Vegetables">
+                        <div class="m-2">
+                            <h5>Vegetables</h5>
+                            <p>Fresh vegetables and everyday cooking essentials.</p>
+                            <button class="btn btn-info" type="button" onclick="display('sectionvegetables')">View Vegetables</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 mb-4">
+                    <div class="dish-card shadow mb-3 pb-3 h-100">
+                        <img src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=800&q=80" class="img1 w-100" alt="Fruits">
+                        <div class="m-2">
+                            <h5>Fruits</h5>
+                            <p>Fresh fruits for healthy meals and snacks.</p>
+                            <button class="btn btn-info" type="button" onclick="display('sectionfruits')">View Fruits</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 mb-4">
+                    <div class="dish-card shadow mb-3 pb-3 h-100">
+                        <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80" class="img1 w-100" alt="Cereals and Pulses">
+                        <div class="m-2">
+                            <h5>Cereals &amp; Pulses</h5>
+                            <p>Rice, grains, lentils, beans and other pantry essentials.</p>
+                            <button class="btn btn-info" type="button" onclick="display('sectioncereals')">View Cereals &amp; Pulses</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="sectionvegetables" class="category-page" style="display:none;">
         <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
             <div class="container-fluid">
