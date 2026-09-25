@@ -608,6 +608,19 @@ function setupSignupPasswordToggles() {
     }
 }
 
+function toggleLoginPassword(button) {
+    const wrap = button && button.closest(".password-toggle-wrap");
+    const input = wrap && wrap.querySelector(".login-password-input");
+    if (!input) return false;
+
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    button.textContent = show ? "🙈" : "👁️";
+    button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    button.setAttribute("title", show ? "Hide password" : "Show password");
+    return false;
+}
+
 function setupLoginPasswordToggles() {
     const buttons = document.querySelectorAll(".toggle-login-password");
 
