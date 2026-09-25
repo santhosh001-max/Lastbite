@@ -608,7 +608,26 @@ function setupSignupPasswordToggles() {
     }
 }
 
+function setupLoginPasswordToggles() {
+    const buttons = document.querySelectorAll(".toggle-login-password");
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const group = this.closest(".input-group");
+            const input = group ? group.querySelector(".login-password-input") : null;
+            if (!input) return;
+
+            const showing = input.type === "text";
+            input.type = showing ? "password" : "text";
+            this.textContent = showing ? "👁️" : "🙈";
+            this.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+        });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    setupLoginPasswordToggles();
+
     setupSignupPasswordToggles();
 
     initLeafletMap();
