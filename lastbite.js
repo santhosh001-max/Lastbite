@@ -585,7 +585,32 @@ async function handleSignup() {
     }
 }
 
+function setupSignupPasswordToggles() {
+    const password = document.getElementById("signupPassword");
+    const confirmPassword = document.getElementById("signupConfirmPassword");
+    const passwordButton = document.getElementById("toggleSignupPassword");
+    const confirmButton = document.getElementById("toggleSignupConfirmPassword");
+
+    function togglePassword(input, button) {
+        if (!input || !button) return;
+        const showing = input.type === "text";
+        input.type = showing ? "password" : "text";
+        button.textContent = showing ? "👁️" : "🙈";
+        button.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+    }
+
+    if (passwordButton) {
+        passwordButton.addEventListener("click", () => togglePassword(password, passwordButton));
+    }
+
+    if (confirmButton) {
+        confirmButton.addEventListener("click", () => togglePassword(confirmPassword, confirmButton));
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    setupSignupPasswordToggles();
+
     initLeafletMap();
     // ... your other existing init functions ...
 });
