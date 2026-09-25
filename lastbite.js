@@ -542,6 +542,7 @@ async function handleSignup() {
     const password = document.getElementById("signupPassword")?.value || "";
     const confirmPassword = document.getElementById("signupConfirmPassword")?.value || "";
     const role = document.getElementById("signupRole")?.value || "user";
+    const staffCode = document.getElementById("signupStaffCode")?.value || "";
     const message = document.getElementById("signupMessage");
     const button = document.getElementById("signupSubmitButton");
 
@@ -569,7 +570,7 @@ async function handleSignup() {
         if (button) { button.disabled = true; button.textContent = "Creating..."; }
         const result = await apiRequest("/auth/signup", {
             method: "POST",
-            body: JSON.stringify({ name, email, password, role })
+            body: JSON.stringify({ name, email, password, role, staffCode })
         });
         showMessage(result.message || "Account created successfully.", true);
         document.getElementById("signupForm")?.reset();
