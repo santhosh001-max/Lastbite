@@ -461,7 +461,7 @@ async function handleAddFoodItem() {
         }
 
         foodItems.push(savedItem);
-        appendDishCardToContainer("sectionfooditemsedit", savedItem, "btn-danger", "Delete");
+        appendDishCardToContainer("sectionfooditemsedit", savedItem, "btn-danger", "Edit");
         appendDishCardToContainer("sectionfooditemsbuy", savedItem, "btn-success", "Order now");
 
         nameInput.value = "";
