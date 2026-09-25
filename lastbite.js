@@ -613,7 +613,7 @@ function setupLoginPasswordToggles() {
 
     buttons.forEach((button) => {
         button.addEventListener("click", function () {
-            const group = this.closest(".input-group");
+            const group = this.closest(".password-toggle-wrap");
             const input = group ? group.querySelector(".login-password-input") : null;
             if (!input) return;
 
