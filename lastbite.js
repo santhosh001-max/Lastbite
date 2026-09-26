@@ -5,6 +5,7 @@
 const allSections = [
     'sectionhome',
     'sectioncustomermenu',
+    'sectionstaffcategories',
     'sectionvegetables',
     'sectionfruits',
     'sectioncereals',
@@ -100,19 +101,49 @@ function normalizeFoodCategory(category) {
     return "food";
 }
 
-function filterStaffFoodCategory(category, button) {
-    const selected = normalizeFoodCategory(category);
-    document.querySelectorAll(".staff-category-btn").forEach(btn => {
-        btn.classList.toggle("active", btn === button);
-    });
+let selectedStaffFoodCategory = "food";
+
+function filterStaffFoodCategory(category) {
+    selectedStaffFoodCategory = normalizeFoodCategory(category);
+
     const section = document.getElementById("sectionfooditemsedit");
     if (!section) return;
+
     section.querySelectorAll(".staff-food-card, .dynamic-food-card").forEach(card => {
         const cardCategory = normalizeFoodCategory(card.dataset.category);
-        card.style.display = cardCategory === selected ? "" : "none";
+        card.style.display = cardCategory === selectedStaffFoodCategory ? "" : "none";
     });
+
+    const categorySelect = document.getElementById("lastbiteItemCategory");
+    if (categorySelect) {
+        categorySelect.value = selectedStaffFoodCategory;
+    }
+
+    const categoryTitle = document.getElementById("staffSelectedCategoryTitle");
+    if (categoryTitle) {
+        const names = {
+            food: "Food",
+            vegetables: "Vegetables",
+            fruits: "Fruits",
+            cereals: "Cereals & Pulses"
+        };
+        categoryTitle.textContent = names[selectedStaffFoodCategory] || "Food";
+    }
 }
+
+function openStaffFoodCategory(category) {
+    selectedStaffFoodCategory = normalizeFoodCategory(category);
+    switchSection("sectionfooditemsedit");
+    filterStaffFoodCategory(selectedStaffFoodCategory);
+
+    const categorySelect = document.getElementById("lastbiteItemCategory");
+    if (categorySelect) {
+        categorySelect.value = selectedStaffFoodCategory;
+    }
+}
+
 window.filterStaffFoodCategory = filterStaffFoodCategory;
+window.openStaffFoodCategory = openStaffFoodCategory;
 
 function getSafeQuantity(value, fallback = 1) {
     const quantity = Number(value);
