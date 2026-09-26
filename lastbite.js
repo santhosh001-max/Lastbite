@@ -84,8 +84,131 @@ function mapApiFoodToUiFood(item) {
         name: item.name,
         desc: item.description || "Freshly added item.",
         price: Number(item.price) || 0,
+        quantity: Math.max(1, Number(item.quantity) || 1),
         img: item.image_url || "https://via.placeholder.com/400x200?text=No+Image"
     };
+}
+
+function getSafeQuantity(value, fallback = 1) {
+    const quantity = Number(value);
+    return Number.isInteger(quantity) && quantity > 0 ? quantity : fallback;
+}
+
+function createQuantityControl(initialQuantity = 1, foodId = "") {
+    const wrapper = document.createElement("div");
+    wrapper.className = "food-quantity-control mt-2 mb-3";
+    wrapper.style.display = "flex";
+    wrapper.style.alignItems = "center";
+    wrapper.style.gap = "8px";
+
+    const label = document.createElement("span");
+    label.textContent = "Quantity:";
+    label.style.fontWeight = "600";
+
+    const minus = document.createElement("button");
+    minus.type = "button";
+    minus.className = "btn btn-outline-secondary btn-sm";
+    minus.textContent = "−";
+    minus.setAttribute("aria-label", "Decrease quantity");
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.className = "form-control form-control-sm food-quantity-input";
+    input.min = "1";
+    input.value = String(getSafeQuantity(initialQuantity));
+    input.dataset.foodId = foodId;
+    input.style.width = "70px";
+    input.style.textAlign = "center";
+
+    const plus = document.createElement("button");
+    plus.type = "button";
+    plus.className = "btn btn-outline-secondary btn-sm";
+    plus.textContent = "+";
+    plus.setAttribute("aria-label", "Increase quantity");
+
+    const normalize = () => {
+        const value = Math.max(1, parseInt(input.value, 10) || 1);
+        input.value = String(value);
+    };
+
+    minus.addEventListener("click", () => {
+        normalize();
+        input.value = String(Math.max(1, parseInt(input.value, 10) - 1));
+    });
+
+    plus.addEventListener("click", () => {
+        normalize();
+        input.value = String(parseInt(input.value, 10) + 1);
+    });
+
+    input.addEventListener("change", normalize);
+    input.addEventListener("input", () => {
+        if (input.value !== "") normalize();
+    });
+
+    wrapper.append(label, minus, input, plus);
+    return wrapper;
+}
+
+function getCardQuantity(card) {
+    const input = card ? card.querySelector(".food-quantity-input") : null;
+    return getSafeQuantity(input ? input.value : 1);
+}
+
+function ensurePaymentOrderSummary() {
+    const modal = document.getElementById("lastbitePaymentModal");
+    if (!modal) return null;
+
+    let summary = modal.querySelector("#lastbiteOrderSummary");
+    if (!summary) {
+        summary = document.createElement("div");
+        summary.id = "lastbiteOrderSummary";
+        summary.className = "alert alert-light border mb-3";
+        const body = modal.querySelector(".modal-body");
+        if (body) body.insertBefore(summary, body.firstChild);
+    }
+    return summary;
+}
+
+function preparePaymentForFoodButton(button) {
+    const card = button ? button.closest(".dish-card") : null;
+    if (!card) return;
+
+    const nameParagraph = card.querySelector("h5 + p");
+    const priceParagraph = Array.from(card.querySelectorAll("h5")).find(h => h.textContent.trim().toLowerCase() === "price");
+    const priceText = priceParagraph && priceParagraph.nextElementSibling
+        ? priceParagraph.nextElementSibling.textContent
+        : "Rs. 0";
+    const price = Number((priceText.match(/[0-9]+(?:\.[0-9]+)?/) || ["0"])[0]);
+    const quantity = getCardQuantity(card);
+    const name = nameParagraph ? nameParagraph.textContent.trim() : "Food item";
+    const total = price * quantity;
+
+    const summary = ensurePaymentOrderSummary();
+    if (summary) {
+        summary.innerHTML =
+            "<strong>" + escapeHtml(name) + "</strong>" +
+            "<br>Quantity: " + quantity +
+            "<br>Total: Rs. " + total.toFixed(2);
+    }
+
+    window.lastbiteSelectedOrder = { name, price, quantity, total };
+}
+
+function setupStaticFoodQuantityControls() {
+    const section = document.getElementById("sectionfooditemsbuy");
+    if (!section) return;
+
+    section.querySelectorAll(".dish-card").forEach(card => {
+        if (card.closest(".dynamic-food-card") || card.querySelector(".food-quantity-control")) return;
+
+        const orderButton = card.querySelector('button[data-target="#lastbitePaymentModal"]');
+        if (!orderButton) return;
+
+        const control = createQuantityControl(1, "");
+        orderButton.parentElement.insertBefore(control, orderButton);
+        orderButton.classList.add("order-now-btn");
+    });
 }
 
 async function apiRequest(path, options = {}) {
@@ -131,6 +254,7 @@ async function saveFoodItemToAPI(item) {
         body: JSON.stringify({
             name: item.name,
             description: item.desc,
+            quantity: getSafeQuantity(item.quantity),
             price: item.price,
             image_url: item.img
         })
@@ -196,7 +320,9 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
     columnWrapper.className = "col-12 col-md-3 dynamic-food-card";
     columnWrapper.dataset.foodId = item.id;
 
-    let actionButton = '<button type="button" class="btn btn-success" data-toggle="modal" data-target="#lastbitePaymentModal" data-whatever="@order">Order now</button>';
+    const availableQuantity = getSafeQuantity(item.quantity);
+    let actionButton = '<button type="button" class="btn btn-success order-now-btn" data-toggle="modal" data-target="#lastbitePaymentModal" data-whatever="@order">Order now</button>';
+
     if (functionalBtnLabel === "Edit") {
         actionButton = '<button type="button" class="btn btn-danger edit-food-btn" data-food-id="' +
             escapeHtml(item.id) + '">Edit</button>';
@@ -210,10 +336,22 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
         '<h5>Name</h5><p>' + escapeHtml(item.name) + '</p>' +
         '<h5>Description</h5><p>' + escapeHtml(item.desc) + '</p>' +
         '<h5>Price</h5><p>Rs. ' + Number(item.price).toFixed(2) + '</p>' +
+        (functionalBtnLabel === "Edit"
+            ? '<h5>Available Quantity</h5><p>' + availableQuantity + '</p>'
+            : '') +
         actionButton +
         '</div></div>';
 
     targetRowElement.appendChild(columnWrapper);
+
+    if (functionalBtnLabel !== "Edit") {
+        const actionArea = columnWrapper.querySelector(".m-2");
+        const button = columnWrapper.querySelector(".order-now-btn");
+        if (actionArea && button) {
+            const control = createQuantityControl(1, item.id);
+            actionArea.insertBefore(control, button);
+        }
+    }
 }
 
 async function updateFoodItemToAPI(id, item) {
@@ -222,6 +360,7 @@ async function updateFoodItemToAPI(id, item) {
         body: JSON.stringify({
             name: item.name,
             description: item.desc,
+            quantity: getSafeQuantity(item.quantity),
             price: item.price,
             image_url: item.img
         })
@@ -253,6 +392,7 @@ function prepareNewFoodModal() {
     const nameInput = document.getElementById("lastbiteItemName");
     const descInput = document.getElementById("lastbiteItemDescription");
     const priceInput = document.getElementById("lastbiteItemPrice");
+    const quantityInput = document.getElementById("lastbiteItemQuantity");
     const fileInput = document.getElementById("foodItemImageUploader");
     const previewImg = document.getElementById("uploadPreviewThumbnail");
     const placeholderText = document.getElementById("triggerPlaceholderText");
@@ -261,6 +401,7 @@ function prepareNewFoodModal() {
     if (nameInput) nameInput.value = "";
     if (descInput) descInput.value = "";
     if (priceInput) priceInput.value = "";
+    if (quantityInput) quantityInput.value = "1";
     if (fileInput) fileInput.value = "";
     currentUploadedImageBase64 = "";
 
@@ -295,6 +436,7 @@ function openEditFoodItem(id) {
     if (nameInput) nameInput.value = item.name || "";
     if (descInput) descInput.value = item.desc || "";
     if (priceInput) priceInput.value = Number(item.price) || 0;
+    if (quantityInput) quantityInput.value = getSafeQuantity(item.quantity);
 
     if (previewImg && item.img) {
         previewImg.src = item.img;
@@ -322,16 +464,19 @@ async function handleSaveFoodItemEdit() {
     const nameInput = document.getElementById("lastbiteItemName");
     const descInput = document.getElementById("lastbiteItemDescription");
     const priceInput = document.getElementById("lastbiteItemPrice");
+    const quantityInput = document.getElementById("lastbiteItemQuantity");
     const saveButton = document.getElementById("saveFoodItemEditButton");
 
     const name = nameInput ? nameInput.value.trim() : "";
     const desc = descInput ? descInput.value.trim() : "";
     const price = priceInput ? Number(priceInput.value) : NaN;
+    const quantity = quantityInput ? parseInt(quantityInput.value, 10) : NaN;
 
     if (!name) return alert("Please enter a valid Item Name.");
     if (!Number.isFinite(price) || price < 0) return alert("Please enter a valid price.");
+    if (!Number.isInteger(quantity) || quantity < 1) return alert("Please enter a valid quantity.");
 
-    const updated = { id, name, desc, price, img: currentUploadedImageBase64 || "" };
+    const updated = { id, name, desc, price, quantity, img: currentUploadedImageBase64 || "" };
 
     try {
         if (saveButton) { saveButton.disabled = true; saveButton.textContent = "Saving..."; }
@@ -413,6 +558,7 @@ async function handleAddFoodItem() {
     const nameInput = document.getElementById("lastbiteItemName");
     const descInput = document.getElementById("lastbiteItemDescription");
     const priceInput = document.getElementById("lastbiteItemPrice");
+    const quantityInput = document.getElementById("lastbiteItemQuantity");
     const fileInput = document.getElementById("foodItemImageUploader");
     const previewImg = document.getElementById("uploadPreviewThumbnail");
     const placeholderText = document.getElementById("triggerPlaceholderText");
@@ -429,9 +575,15 @@ async function handleAddFoodItem() {
     }
 
     const price = priceInput ? Number(priceInput.value) : NaN;
+    const quantity = quantityInput ? parseInt(quantityInput.value, 10) : NaN;
     if (!Number.isFinite(price) || price < 0) {
         alert("Please enter a valid price.");
         if (priceInput) priceInput.focus();
+        return;
+    }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+        alert("Please enter a valid quantity.");
+        if (quantityInput) quantityInput.focus();
         return;
     }
 
@@ -439,6 +591,7 @@ async function handleAddFoodItem() {
         name: nameInput.value.trim(),
         desc: descInput ? descInput.value.trim() : "Freshly added item.",
         price: price,
+        quantity: quantity,
         img: currentUploadedImageBase64
     };
 
@@ -467,6 +620,7 @@ async function handleAddFoodItem() {
         nameInput.value = "";
         if (descInput) descInput.value = "";
         if (priceInput) priceInput.value = "";
+        if (quantityInput) quantityInput.value = "1";
         currentUploadedImageBase64 = "";
 
         if (previewImg) {
@@ -756,6 +910,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupImageUploadLogic();
     initLeafletMap();
     loadFoodItemsFromAPI();
+    setupStaticFoodQuantityControls();
 
     const addConfirmBtn = document.getElementById('addFoodItemConfirmButton') ||
         document.querySelector('#exampleModal2 .modal-footer .btn-primary');
@@ -775,6 +930,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (deleteEditBtn) deleteEditBtn.addEventListener("click", handleEditModalDelete);
 
     document.addEventListener("click", event => {
+        const orderButton = event.target.closest(".order-now-btn");
+        if (orderButton) preparePaymentForFoodButton(orderButton);
+
         const editButton = event.target.closest(".edit-food-btn");
         if (editButton) openEditFoodItem(editButton.dataset.foodId);
     });
