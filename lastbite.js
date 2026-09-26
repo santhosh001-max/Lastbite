@@ -87,9 +87,32 @@ function mapApiFoodToUiFood(item) {
         desc: item.description || "Freshly added item.",
         price: Number(item.price) || 0,
         quantity: Math.max(1, Number(item.quantity) || 1),
-        img: item.image_url || "https://via.placeholder.com/400x200?text=No+Image"
+        img: item.image_url || "https://via.placeholder.com/400x200?text=No+Image",
+        category: normalizeFoodCategory(item.category)
     };
 }
+
+function normalizeFoodCategory(category) {
+    const value = String(category || "food").toLowerCase().trim();
+    if (value === "vegetable" || value === "vegetables") return "vegetables";
+    if (value === "fruit" || value === "fruits") return "fruits";
+    if (value === "cereal" || value === "cereals" || value === "pulses" || value === "cereals & pulses") return "cereals";
+    return "food";
+}
+
+function filterStaffFoodCategory(category, button) {
+    const selected = normalizeFoodCategory(category);
+    document.querySelectorAll(".staff-category-btn").forEach(btn => {
+        btn.classList.toggle("active", btn === button);
+    });
+    const section = document.getElementById("sectionfooditemsedit");
+    if (!section) return;
+    section.querySelectorAll(".staff-food-card, .dynamic-food-card").forEach(card => {
+        const cardCategory = normalizeFoodCategory(card.dataset.category);
+        card.style.display = cardCategory === selected ? "" : "none";
+    });
+}
+window.filterStaffFoodCategory = filterStaffFoodCategory;
 
 function getSafeQuantity(value, fallback = 1) {
     const quantity = Number(value);
@@ -266,6 +289,7 @@ async function saveFoodItemToAPI(item) {
             name: item.name,
             description: item.desc,
             quantity: getSafeQuantity(item.quantity),
+            category: normalizeFoodCategory(item.category),
             price: item.price,
             image_url: item.img
         })
@@ -330,6 +354,7 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
     const columnWrapper = document.createElement("div");
     columnWrapper.className = "col-12 col-md-3 dynamic-food-card";
     columnWrapper.dataset.foodId = item.id;
+    columnWrapper.dataset.category = normalizeFoodCategory(item.category);
 
     const availableQuantity = getSafeQuantity(item.quantity);
     let actionButton = '<button type="button" class="btn btn-success order-now-btn" data-toggle="modal" data-target="#lastbitePaymentModal" data-whatever="@order">Order now</button>';
@@ -404,6 +429,7 @@ function prepareNewFoodModal() {
     const descInput = document.getElementById("lastbiteItemDescription");
     const priceInput = document.getElementById("lastbiteItemPrice");
     const quantityInput = document.getElementById("lastbiteItemQuantity");
+    const categoryInput = document.getElementById("lastbiteItemCategory");
     const fileInput = document.getElementById("foodItemImageUploader");
     const previewImg = document.getElementById("uploadPreviewThumbnail");
     const placeholderText = document.getElementById("triggerPlaceholderText");
@@ -413,6 +439,7 @@ function prepareNewFoodModal() {
     if (descInput) descInput.value = "";
     if (priceInput) priceInput.value = "";
     if (quantityInput) quantityInput.value = "1";
+    if (categoryInput) categoryInput.value = "food";
     if (fileInput) fileInput.value = "";
     currentUploadedImageBase64 = "";
 
@@ -436,6 +463,7 @@ function openEditFoodItem(id) {
     const nameInput = document.getElementById("lastbiteItemName");
     const descInput = document.getElementById("lastbiteItemDescription");
     const priceInput = document.getElementById("lastbiteItemPrice");
+    const categoryInput = document.getElementById("lastbiteItemCategory");
     const previewImg = document.getElementById("uploadPreviewThumbnail");
     const placeholderText = document.getElementById("triggerPlaceholderText");
     const statusText = document.getElementById("foodImageUploadStatus");
@@ -447,6 +475,7 @@ function openEditFoodItem(id) {
     if (nameInput) nameInput.value = item.name || "";
     if (descInput) descInput.value = item.desc || "";
     if (priceInput) priceInput.value = Number(item.price) || 0;
+    if (categoryInput) categoryInput.value = normalizeFoodCategory(item.category);
     if (quantityInput) quantityInput.value = getSafeQuantity(item.quantity);
 
     if (previewImg && item.img) {
@@ -487,7 +516,7 @@ async function handleSaveFoodItemEdit() {
     if (!Number.isFinite(price) || price < 0) return alert("Please enter a valid price.");
     if (!Number.isInteger(quantity) || quantity < 1) return alert("Please enter a valid quantity.");
 
-    const updated = { id, name, desc, price, quantity, img: currentUploadedImageBase64 || "" };
+    const updated = { id, name, desc, price, quantity, category: normalizeFoodCategory(categoryInput?.value), img: currentUploadedImageBase64 || "" };
 
     try {
         if (saveButton) { saveButton.disabled = true; saveButton.textContent = "Saving..."; }
@@ -603,6 +632,7 @@ async function handleAddFoodItem() {
         desc: descInput ? descInput.value.trim() : "Freshly added item.",
         price: price,
         quantity: quantity,
+        category: normalizeFoodCategory(document.getElementById("lastbiteItemCategory")?.value),
         img: currentUploadedImageBase64
     };
 
@@ -1025,6 +1055,7 @@ function toggleDeliveryAvailability() {
 
 document.addEventListener("DOMContentLoaded", () => {
     switchSection('sectionhome');
+    setTimeout(() => filterStaffFoodCategory("food", document.querySelector('.staff-category-btn[data-category="food"]')), 150);
     renderDeliveryDashboard();
     setupImageUploadLogic();
     initLeafletMap();
