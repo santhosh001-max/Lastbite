@@ -208,14 +208,15 @@ function getSafeQuantity(value, fallback = 1) {
     return Number.isFinite(quantity) && quantity > 0 ? quantity : fallback;
 }
 
-function createQuantityControl(initialQuantity = 1, foodId = "", unit = "servings") {
+function createQuantityControl(initialQuantity = 1, foodId = "", unit = "servings", price = 0) {
     const wrapper = document.createElement("div");
-    wrapper.className = "food-quantity-control mt-2 mb-3";
+    wrapper.className = "food-quantity-control mt-2 mb-2";
     wrapper.style.display = "flex";
     wrapper.style.alignItems = "center";
     wrapper.style.gap = "8px";
 
     const measured = ["kg", "g"].includes(String(unit).toLowerCase());
+    const unitPrice = Number(price) || 0;
     let selectedUnit = measured ? String(unit).toLowerCase() : "servings";
 
     const label = document.createElement("span");
@@ -286,7 +287,31 @@ function createQuantityControl(initialQuantity = 1, foodId = "", unit = "serving
         button.addEventListener("click", () => setUnit(button.dataset.unit));
     });
 
-    wrapper.append(label, minus, input, plus, unitSwitch);
+    const livePrice = document.createElement("div");
+    livePrice.className = "lastbite-live-price-summary";
+    livePrice.innerHTML = unitPrice > 0
+        ? '<span>Price: ₹' + unitPrice.toFixed(2) + ' / ' + (measured ? selectedUnit : 'unit') + '</span><strong>Total: ₹' + (unitPrice * Number(input.value || 1)).toFixed(2) + '</strong>'
+        : '<strong class="text-muted">Price: Set by provider</strong>';
+
+    const refreshLivePrice = () => {
+        if (unitPrice <= 0) return;
+        const quantity = Number(input.value) || 0;
+        const activeUnit = measured ? selectedUnit : "unit";
+        livePrice.innerHTML =
+            '<span>Price: ₹' + unitPrice.toFixed(2) + ' / ' + activeUnit + '</span>' +
+            '<strong>Total: ₹' + (unitPrice * quantity).toFixed(2) + '</strong>';
+    };
+
+    input.addEventListener("input", refreshLivePrice);
+    input.addEventListener("change", refreshLivePrice);
+
+    const originalSetUnit = setUnit;
+    setUnit = (nextUnit) => {
+        originalSetUnit(nextUnit);
+        refreshLivePrice();
+    };
+
+    wrapper.append(label, minus, input, plus, unitSwitch, livePrice);
     return wrapper;
 }
 
@@ -591,7 +616,7 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
         const actionArea = columnWrapper.querySelector(".m-2");
         const button = columnWrapper.querySelector(".order-now-btn");
         if (actionArea && button) {
-            const control = createQuantityControl(1, item.id, item.unit || "servings");
+            const control = createQuantityControl(1, item.id, item.unit || "servings", item.price);
             actionArea.insertBefore(control, button);
         }
     }
