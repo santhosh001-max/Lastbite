@@ -86,6 +86,10 @@ app.post("/api/pricing/recommend", async (req, res) => {
     const category = String(req.body?.category || "").trim().toLowerCase();
     const quantity = Math.max(1, Number(req.body?.quantity) || 1);
     const currentPrice = Math.max(0, Number(req.body?.currentPrice) || 0);
+    const unit = String(req.body?.unit || (["vegetables","fruits","cereals"].includes(category) ? "kg" : "servings")).toLowerCase();
+    if (["vegetables","fruits","cereals"].includes(category) && !["g","kg"].includes(unit)) {
+      return res.status(400).json({ success: false, message: "Measured categories require grams (g) or kilograms (kg)." });
+    }
 
     if (!name) return res.status(400).json({ success: false, message: "Item name is required." });
     if (!["vegetables", "fruits", "cereals"].includes(category)) {
@@ -112,7 +116,7 @@ app.post("/api/pricing/recommend", async (req, res) => {
               },
               {
                 role: "user",
-                content: JSON.stringify({ name, category, quantity, currentPrice })
+                content: JSON.stringify({ name, category, quantity, unit, currentPrice })
               }
             ]
           })
@@ -156,7 +160,7 @@ app.post("/api/pricing/recommend", async (req, res) => {
       success: true,
       data: {
         suggestedPrice,
-        reason: "Fallback estimate using the entered/reference price, category and quantity. Add OPENAI_API_KEY for model-assisted pricing.",
+        reason: "Fallback estimate using the entered/reference price, category, quantity and unit. Add OPENAI_API_KEY for model-assisted pricing.",
         source: "fallback"
       }
     });
