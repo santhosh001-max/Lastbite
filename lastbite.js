@@ -62,7 +62,7 @@ let map = null;
 // ==========================================
 // Change this URL after deploying the Node.js backend.
 // For local development: http://localhost:3000/api
-const API_BASE_URL = window.LASTBITE_API_URL || "http://localhost:3000/api";
+const API_BASE_URL = window.LASTBITE_API_URL || "https://asmr-foods-api-production.up.railway.app/api";
 const LOCAL_FOOD_STORAGE_KEY = "lastbite_local_food_items_v1";
 
 function getLocalFoodItems() {
