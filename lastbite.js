@@ -50,7 +50,9 @@ let deliveryDashboardState = {
     activeJobs: 0,
     completedToday: 0,
     earningsToday: 0,
-    rating: 4.9
+    rating: 4.9,
+    jobs: [],
+    history: []
 };
 
 let currentUploadedImageBase64 = "";
