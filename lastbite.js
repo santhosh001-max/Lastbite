@@ -133,6 +133,11 @@ function filterStaffFoodCategory(category) {
     const addItemsButton = document.getElementById("button-addon2");
     if (addItemsButton) {
         addItemsButton.textContent = "Add Items";
+    }
+
+    const addItemsButton = document.getElementById("button-addon2");
+    if (addItemsButton) {
+        addItemsButton.textContent = "Add Items";
         addItemsButton.setAttribute(
             "aria-label",
             "Add items to " + (categoryTitle ? categoryTitle.textContent : "Food")
