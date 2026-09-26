@@ -301,6 +301,82 @@ async function apiRequest(path, options = {}) {
     return result;
 }
 
+async function getAIPriceRecommendation() {
+    const name = document.getElementById("lastbiteItemName")?.value.trim() || "";
+    const category = normalizeFoodCategory(document.getElementById("lastbiteItemCategory")?.value);
+    const quantity = getSafeQuantity(document.getElementById("lastbiteItemQuantity")?.value, 1);
+    const currentPrice = Number(document.getElementById("lastbiteItemPrice")?.value) || 0;
+    const box = document.getElementById("aiPriceRecommendation");
+    const button = document.getElementById("aiPriceSuggestButton");
+
+    if (!["vegetables", "fruits", "cereals"].includes(category)) {
+        if (box) {
+            box.className = "lastbite-ai-price-box";
+            box.innerHTML = "<strong>AI pricing is available for Vegetables, Fruits, and Cereals &amp; Pulses.</strong>";
+        }
+        return;
+    }
+    if (!name) {
+        if (box) {
+            box.className = "lastbite-ai-price-box lastbite-ai-price-warning";
+            box.textContent = "Enter the item name first.";
+        }
+        return;
+    }
+
+    try {
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
+        }
+        if (box) {
+            box.className = "lastbite-ai-price-box";
+            box.textContent = "AI is analyzing category, quantity and price conditions...";
+        }
+
+        const result = await apiRequest("/pricing/recommend", {
+            method: "POST",
+            body: JSON.stringify({ name, category, quantity, currentPrice })
+        });
+        const data = result.data || {};
+        const suggested = Number(data.suggestedPrice) || 0;
+
+        if (box) {
+            box.className = "lastbite-ai-price-box";
+            box.innerHTML =
+                '<div class="lastbite-ai-price-title"><i class="fas fa-robot"></i> AI Price Recommendation</div>' +
+                '<div class="lastbite-ai-price-value">₹' + suggested.toFixed(2) + ' / unit</div>' +
+                '<div class="lastbite-ai-price-meta">' + escapeHtml(data.reason || "Recommended from the available item and pricing data.") + '</div>' +
+                '<button type="button" class="btn btn-sm btn-success mt-2" id="useAIPriceButton">Use Recommended Price</button>';
+            document.getElementById("useAIPriceButton")?.addEventListener("click", () => {
+                const input = document.getElementById("lastbiteItemPrice");
+                if (input) input.value = suggested.toFixed(2);
+                box.className = "lastbite-ai-price-box lastbite-ai-price-used";
+                box.insertAdjacentHTML("beforeend", '<div class="small mt-1">✓ Recommended price applied.</div>');
+            });
+        }
+    } catch (error) {
+        console.error("LastBite AI pricing error:", error);
+        if (box) {
+            box.className = "lastbite-ai-price-box lastbite-ai-price-warning";
+            box.textContent = error.message || "AI pricing is temporarily unavailable.";
+        }
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-robot"></i> AI Price';
+        }
+    }
+}
+
+function resetAIPriceRecommendation() {
+    const box = document.getElementById("aiPriceRecommendation");
+    if (box) {
+        box.className = "lastbite-ai-price-box d-none";
+        box.innerHTML = "";
+    }
+}
+
 async function loadFoodItemsFromAPI() {
     try {
         const result = await apiRequest("/foods");
@@ -468,6 +544,7 @@ function resetFoodModal() {
 
 function prepareNewFoodModal() {
     resetFoodModal();
+    resetAIPriceRecommendation();
 
     const nameInput = document.getElementById("lastbiteItemName");
     const descInput = document.getElementById("lastbiteItemDescription");
@@ -515,6 +592,7 @@ function openEditFoodItem(id) {
 
     window.editingFoodItemId = item.id;
     currentUploadedImageBase64 = item.img || "";
+    resetAIPriceRecommendation();
 
     if (title) title.textContent = "Edit Food";
     if (nameInput) nameInput.value = item.name || "";
@@ -1218,6 +1296,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector('#exampleModal2 .modal-footer .btn-primary');
     const signupButton = document.getElementById("signupSubmitButton");
     if (signupButton) signupButton.addEventListener("click", handleSignup);
+
+    const aiPriceButton = document.getElementById("aiPriceSuggestButton");
+    if (aiPriceButton) aiPriceButton.addEventListener("click", getAIPriceRecommendation);
 
     const addFoodItemsButton = document.getElementById("button-addon2");
     if (addFoodItemsButton) {
