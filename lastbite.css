@@ -508,3 +508,106 @@ body {
         height: 190px;
     }
 }
+
+
+/* Consumer menu - special action buttons */
+.lastbite-special-actions {
+    margin-top: 8px;
+    margin-bottom: 32px;
+    gap: 8px;
+}
+
+.lastbite-special-actions > div {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.special-action-btn {
+    width: 100%;
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    border: 0;
+    border-radius: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+.special-action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+.special-action-btn:focus {
+    outline: 3px solid rgba(0, 123, 255, 0.25);
+    outline-offset: 2px;
+}
+
+.festival-bounties-btn {
+    background: linear-gradient(135deg, #fff4d6, #ffe4a3);
+    color: #5a3a00;
+}
+
+.best-offers-btn {
+    background: linear-gradient(135deg, #e8f7ff, #cdeeff);
+    color: #073b5c;
+}
+
+.special-action-icon {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.75);
+    font-size: 22px;
+    margin-right: 14px;
+}
+
+.special-action-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.special-action-content strong {
+    font-size: 20px;
+    line-height: 1.25;
+}
+
+.special-action-content small {
+    margin-top: 4px;
+    font-size: 13px;
+    opacity: 0.78;
+}
+
+.special-action-arrow {
+    margin-left: 12px;
+    font-size: 15px;
+    opacity: 0.7;
+}
+
+@media (max-width: 767.98px) {
+    .lastbite-special-actions {
+        margin-top: 4px;
+    }
+
+    .special-action-btn {
+        min-height: 78px;
+        padding: 13px 15px;
+    }
+
+    .special-action-content strong {
+        font-size: 17px;
+    }
+
+    .special-action-content small {
+        font-size: 12px;
+    }
+}
