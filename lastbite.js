@@ -120,15 +120,16 @@ function filterStaffFoodCategory(category) {
     }
 
     const categoryTitle = document.getElementById("staffSelectedCategoryTitle");
-    if (categoryTitle) {
-        const names = {
-            food: "Food",
-            vegetables: "Vegetables",
-            fruits: "Fruits",
-            cereals: "Cereals & Pulses"
-        };
-        categoryTitle.textContent = names[selectedStaffFoodCategory] || "Food";
-    }
+    const foodPageTitle = document.getElementById("staffFoodPageTitle");
+    const names = {
+        food: "Food",
+        vegetables: "Vegetables",
+        fruits: "Fruits",
+        cereals: "Cereals & Pulses"
+    };
+    const selectedTitle = names[selectedStaffFoodCategory] || "Food";
+    if (categoryTitle) categoryTitle.textContent = selectedTitle;
+    if (foodPageTitle) foodPageTitle.textContent = selectedTitle;
 
     const addItemsButton = document.getElementById("button-addon2");
     if (addItemsButton) {
