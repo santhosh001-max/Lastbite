@@ -129,6 +129,15 @@ function filterStaffFoodCategory(category) {
         };
         categoryTitle.textContent = names[selectedStaffFoodCategory] || "Food";
     }
+
+    const addItemsButton = document.getElementById("button-addon2");
+    if (addItemsButton) {
+        addItemsButton.textContent = "Add Items";
+        addItemsButton.setAttribute(
+            "aria-label",
+            "Add items to " + (categoryTitle ? categoryTitle.textContent : "Food")
+        );
+    }
 }
 
 function openStaffFoodCategory(category) {
