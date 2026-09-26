@@ -80,6 +80,92 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
+app.post("/api/pricing/recommend", async (req, res) => {
+  try {
+    const name = String(req.body?.name || "").trim();
+    const category = String(req.body?.category || "").trim().toLowerCase();
+    const quantity = Math.max(1, Number(req.body?.quantity) || 1);
+    const currentPrice = Math.max(0, Number(req.body?.currentPrice) || 0);
+
+    if (!name) return res.status(400).json({ success: false, message: "Item name is required." });
+    if (!["vegetables", "fruits", "cereals"].includes(category)) {
+      return res.status(400).json({ success: false, message: "AI pricing supports Vegetables, Fruits, and Cereals & Pulses." });
+    }
+
+    // If an OpenAI key is configured, use the model for the recommendation.
+    // The prompt asks for JSON only and the server clamps the final value.
+    if (process.env.OPENAI_API_KEY) {
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + process.env.OPENAI_API_KEY
+          },
+          body: JSON.stringify({
+            model: process.env.OPENAI_PRICING_MODEL || "gpt-4o-mini",
+            temperature: 0.2,
+            messages: [
+              {
+                role: "system",
+                content: "You are a food surplus pricing assistant for an Indian food recovery marketplace. Return JSON only with suggestedPrice (number) and reason (short string). Suggest a practical INR selling price per unit based only on the supplied item, category, quantity and current/reference price. Never invent live market data. If currentPrice is zero, use a conservative category/item estimate and clearly say it is an estimate."
+              },
+              {
+                role: "user",
+                content: JSON.stringify({ name, category, quantity, currentPrice })
+              }
+            ]
+          })
+        });
+        const payload = await response.json();
+        const raw = payload?.choices?.[0]?.message?.content || "";
+        const cleaned = raw.replace(/^```json\s*/i, "").replace(/\s*```$/i, "").trim();
+        const parsed = JSON.parse(cleaned);
+        const suggestedPrice = Math.max(1, Math.min(100000, Number(parsed.suggestedPrice) || 0));
+        if (suggestedPrice > 0) {
+          return res.json({
+            success: true,
+            data: {
+              suggestedPrice: Number(suggestedPrice.toFixed(2)),
+              reason: String(parsed.reason || "AI-assisted estimate based on the supplied pricing inputs."),
+              source: "ai"
+            }
+          });
+        }
+      } catch (aiError) {
+        console.warn("AI provider unavailable; using local pricing fallback.", aiError.message);
+      }
+    }
+
+    // Safe fallback when no AI key is configured or the provider is unavailable.
+    // This is intentionally transparent: it uses the seller's reference price
+    // plus category/quantity signals rather than pretending to have live market data.
+    const baseByCategory = { vegetables: 45, fruits: 60, cereals: 85 };
+    const lowerName = name.toLowerCase();
+    const known = {
+      tomato: 45, tomatoes: 45, potato: 35, potatoes: 35, onion: 40, onions: 40,
+      carrot: 50, carrots: 50, apple: 140, apples: 140, banana: 55, bananas: 55,
+      pineapple: 80, rice: 65, wheat: 55, dal: 110, lentils: 110, chickpeas: 95
+    };
+    let estimate = known[lowerName] || baseByCategory[category];
+    if (currentPrice > 0) estimate = currentPrice;
+    const quantityFactor = quantity >= 25 ? 0.92 : quantity >= 10 ? 0.96 : 1;
+    const suggestedPrice = Math.max(1, Number((estimate * quantityFactor).toFixed(2)));
+
+    return res.json({
+      success: true,
+      data: {
+        suggestedPrice,
+        reason: "Fallback estimate using the entered/reference price, category and quantity. Add OPENAI_API_KEY for model-assisted pricing.",
+        source: "fallback"
+      }
+    });
+  } catch (error) {
+    console.error("AI pricing error:", error);
+    res.status(500).json({ success: false, message: "Could not calculate a price recommendation." });
+  }
+});
+
 app.get("/api/foods", async (req, res) => {
   try {
     const [rows] = await db.query(
