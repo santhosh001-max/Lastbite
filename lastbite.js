@@ -205,7 +205,7 @@ window.openStaffFoodCategory = openStaffFoodCategory;
 
 function getSafeQuantity(value, fallback = 1) {
     const quantity = Number(value);
-    return Number.isInteger(quantity) && quantity > 0 ? quantity : fallback;
+    return Number.isFinite(quantity) && quantity > 0 ? quantity : fallback;
 }
 
 function createQuantityControl(initialQuantity = 1, foodId = "", unit = "servings") {
@@ -388,7 +388,8 @@ async function apiRequest(path, options = {}) {
 async function getAIPriceRecommendation() {
     const name = document.getElementById("lastbiteItemName")?.value.trim() || "";
     const category = normalizeFoodCategory(document.getElementById("lastbiteItemCategory")?.value);
-    const quantity = getSafeQuantity(document.getElementById("lastbiteItemQuantity")?.value, 1);
+    const rawQuantity = Number(document.getElementById("lastbiteItemQuantity")?.value);
+    const quantity = Number.isFinite(rawQuantity) && rawQuantity > 0 ? rawQuantity : 1;
     const currentPrice = Number(document.getElementById("lastbiteItemPrice")?.value) || 0;
     const unit = document.getElementById("lastbiteItemUnit")?.value || "kg";
     const box = document.getElementById("aiPriceRecommendation");
@@ -430,7 +431,7 @@ async function getAIPriceRecommendation() {
             box.className = "lastbite-ai-price-box";
             box.innerHTML =
                 '<div class="lastbite-ai-price-title"><i class="fas fa-robot"></i> AI Price Recommendation</div>' +
-                '<div class="lastbite-ai-price-value">₹' + suggested.toFixed(2) + ' / unit</div>' +
+                '<div class="lastbite-ai-price-value">₹' + suggested.toFixed(2) + ' / ' + (unit === "g" ? "g" : "kg") + '</div>' +
                 '<div class="lastbite-ai-price-meta">' + escapeHtml(data.reason || "Recommended from the available item and pricing data.") + '</div>' +
                 '<button type="button" class="btn btn-sm btn-success mt-2" id="useAIPriceButton">Use Recommended Price</button>';
             document.getElementById("useAIPriceButton")?.addEventListener("click", () => {
@@ -1432,7 +1433,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const categoryInput = document.getElementById("lastbiteItemCategory");
     if (categoryInput) {
-        categoryInput.addEventListener("change", () => updateQuantityUnitForCategory(categoryInput.value));
+        categoryInput.addEventListener("change", () => {
+            updateQuantityUnitForCategory(categoryInput.value);
+            resetAIPriceRecommendation();
+        });
     document.querySelectorAll(".lastbite-unit-option").forEach((button) => {
         button.addEventListener("click", () => setQuantityUnit(button.dataset.unit));
     });
