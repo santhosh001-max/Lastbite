@@ -929,3 +929,25 @@ body {
 .lastbite-live-price-summary strong {
     font-size: 14px;
 }
+
+
+.lastbite-payment-summary {
+    padding: 12px 14px;
+    border: 1px solid #dfe5ea;
+    border-radius: 10px;
+    background: #f8fafb;
+}
+.lastbite-payment-summary > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 4px 0;
+}
+.lastbite-payment-summary span {
+    color: #495057;
+    font-size: 14px;
+}
+.lastbite-payment-summary strong {
+    font-size: 16px;
+}
