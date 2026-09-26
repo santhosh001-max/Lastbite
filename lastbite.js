@@ -891,22 +891,130 @@ function setupImageUploadLogic() {
 // ==========================================
 
 function renderDeliveryDashboard() {
-    const parentContainer = document.getElementById('sectiondeliveryboy');
-    if (!parentContainer) return;
-    const statBoxes = parentContainer.querySelectorAll('.deliveryboy h4');
-    if (statBoxes.length >= 4) {
-        statBoxes[0].textContent = deliveryDashboardState.activeJobs;
-        statBoxes[1].textContent = deliveryDashboardState.completedToday;
-        statBoxes[2].textContent = `Rs.${deliveryDashboardState.earningsToday}`;
-        statBoxes[3].textContent = deliveryDashboardState.rating.toFixed(1);
+    const state = deliveryDashboardState;
+    const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+
+    set("deliveryActiveJobs", state.activeJobs);
+    set("deliveryCompletedToday", state.completedToday);
+    set("deliveryEarningsToday", "₹" + Number(state.earningsToday || 0).toFixed(0));
+    set("deliveryRating", Number(state.rating || 0).toFixed(1));
+
+    const jobs = Array.isArray(state.jobs) ? state.jobs : [];
+    set("deliveryJobCount", jobs.length);
+
+    const list = document.getElementById("deliveryAssignedList");
+    const empty = document.getElementById("deliveryEmptyState");
+    if (!list) return;
+
+    if (!jobs.length) {
+        list.innerHTML = "";
+        if (empty) empty.style.display = "block";
+        renderDeliveryTabContent("assigned");
+        return;
+    }
+
+    if (empty) empty.style.display = "none";
+    list.innerHTML = jobs.map((job, index) => {
+        const status = job.status || "Ready for pickup";
+        const order = escapeHtml(job.order || ("Order #" + (1001 + index)));
+        const customer = escapeHtml(job.customer || "Customer");
+        const address = escapeHtml(job.address || "Delivery address pending");
+        const amount = Number(job.amount || 0).toFixed(2);
+        return `<article class="delivery-job-card">
+            <div class="delivery-job-top">
+                <div><div class="delivery-job-title">${order}</div><small>${customer}</small></div>
+                <span class="delivery-status">${escapeHtml(status)}</span>
+            </div>
+            <div class="delivery-job-meta">📍 ${address} &nbsp; • &nbsp; ₹${amount}</div>
+            <div class="delivery-job-actions">
+                <button type="button" class="btn btn-sm btn-primary" onclick="updateDeliveryJob(${index}, 'picked')">Mark Picked Up</button>
+                <button type="button" class="btn btn-sm btn-success" onclick="updateDeliveryJob(${index}, 'delivered')">Mark Delivered</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="contactDeliveryCustomer(${index})">Contact</button>
+            </div>
+        </article>`;
+    }).join("");
+    renderDeliveryTabContent("assigned");
+}
+
+function renderDeliveryTabContent(tab) {
+    const content = document.getElementById("deliveryTabContent");
+    if (!content) return;
+    document.querySelectorAll(".delivery-tab").forEach(btn => btn.classList.toggle("active", btn.dataset.deliveryTab === tab));
+
+    if (tab === "history") {
+        const history = Array.isArray(deliveryDashboardState.history) ? deliveryDashboardState.history : [];
+        content.innerHTML = history.length
+            ? history.map(item => `<div class="delivery-job-card"><strong>${escapeHtml(item.order)}</strong> — ${escapeHtml(item.status || "Delivered")}<div class="delivery-job-meta">${escapeHtml(item.date || "Today")} • ₹${Number(item.amount || 0).toFixed(2)}</div></div>`).join("")
+            : "<p class='mb-0'>No completed deliveries yet.</p>";
+    } else if (tab === "earnings") {
+        content.innerHTML = "<strong>Total today:</strong> ₹" + Number(deliveryDashboardState.earningsToday || 0).toFixed(2) +
+            "<br><span>Completed deliveries: " + Number(deliveryDashboardState.completedToday || 0) + "</span>";
+    } else {
+        content.innerHTML = "<p class='mb-0'>Your current assigned deliveries are shown above.</p>";
     }
 }
 
-function simulateOrderProcessingUpdate() {
-    deliveryDashboardState.activeJobs += 1;
-    deliveryDashboardState.completedToday += 1;
-    deliveryDashboardState.earningsToday += 45;
+function showDeliveryTab(tab) {
+    renderDeliveryTabContent(tab);
+}
+
+window.showDeliveryTab = showDeliveryTab;
+
+function updateDeliveryJob(index, action) {
+    const jobs = deliveryDashboardState.jobs || [];
+    const job = jobs[index];
+    if (!job) return;
+
+    if (action === "picked") {
+        job.status = "Out for delivery";
+    } else if (action === "delivered") {
+        job.status = "Delivered";
+        deliveryDashboardState.activeJobs = Math.max(0, deliveryDashboardState.activeJobs - 1);
+        deliveryDashboardState.completedToday += 1;
+        deliveryDashboardState.earningsToday += Number(job.amount || 0);
+        deliveryDashboardState.history = deliveryDashboardState.history || [];
+        deliveryDashboardState.history.unshift({
+            order: job.order || "Order",
+            status: "Delivered",
+            amount: job.amount || 0,
+            date: new Date().toLocaleString()
+        });
+        jobs.splice(index, 1);
+    }
     renderDeliveryDashboard();
+    const availabilityBtn = document.getElementById("deliveryAvailabilityBtn");
+    if (availabilityBtn) availabilityBtn.addEventListener("click", toggleDeliveryAvailability);
+}
+
+window.updateDeliveryJob = updateDeliveryJob;
+
+function contactDeliveryCustomer(index) {
+    const job = (deliveryDashboardState.jobs || [])[index];
+    if (!job) return;
+    alert("Customer contact: " + (job.customer || "Customer") + "\nPhone number will appear here when order data is connected.");
+}
+
+window.contactDeliveryCustomer = contactDeliveryCustomer;
+
+function openDeliveryHelp() {
+    alert("AsMr Foods Delivery Support\nPlease contact the operations team for help with an assigned delivery.");
+}
+
+window.openDeliveryHelp = openDeliveryHelp;
+
+function deliveryLogout() {
+    display("sectionhome");
+}
+
+window.deliveryLogout = deliveryLogout;
+
+function toggleDeliveryAvailability() {
+    const btn = document.getElementById("deliveryAvailabilityBtn");
+    if (!btn) return;
+    const online = !btn.classList.contains("is-online");
+    btn.classList.toggle("is-online", online);
+    btn.classList.toggle("offline", !online);
+    btn.textContent = online ? "● Online" : "● Offline";
 }
 
 // ==========================================
