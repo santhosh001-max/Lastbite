@@ -30,7 +30,10 @@ app.post("/api/auth/signup", async (req, res) => {
     if (!["user", "staff", "deliverer"].includes(role)) {
       return res.status(400).json({ success: false, message: "Invalid account type." });
     }
-    if (role === "staff" && staffCode !== (process.env.STAFF_SIGNUP_CODE || "9221")) {
+    // Staff accounts require a server-side authorization code.
+    // The code is never exposed in the frontend JavaScript.
+    const configuredStaffCode = String(process.env.STAFF_SIGNUP_CODE || "").trim();
+    if (role === "staff" && (!configuredStaffCode || String(staffCode).trim() !== configuredStaffCode)) {
       return res.status(403).json({ success: false, message: "Staff registration is not authorized." });
     }
 
