@@ -106,23 +106,32 @@ function normalizeFoodCategory(category) {
 
 let selectedStaffFoodCategory = "food";
 
-function updateQuantityUnitForCategory(category) {
+function setQuantityUnit(unit) {
+    const unitInput = document.getElementById("lastbiteItemUnit");
+    const buttons = document.querySelectorAll(".lastbite-unit-option");
+    if (!unitInput) return;
+    unitInput.value = unit;
+    buttons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.unit === unit);
+    });
+}
+
+function updateQuantityUnitForCategory(category, preferredUnit = "kg") {
     const normalized = normalizeFoodCategory(category);
     const unitInput = document.getElementById("lastbiteItemUnit");
+    const switchBox = document.getElementById("lastbiteUnitSwitch");
     const quantityInput = document.getElementById("lastbiteItemQuantity");
     const help = document.getElementById("lastbiteQuantityHelp");
     if (!unitInput) return;
     const measured = ["vegetables", "fruits", "cereals"].includes(normalized);
-    unitInput.innerHTML = measured
-        ? '<option value="kg">kg</option><option value="g">g</option>'
-        : '<option value="servings">servings</option>';
+    if (switchBox) switchBox.style.display = measured ? "flex" : "none";
     if (measured) {
-        if (!["kg","g"].includes(unitInput.value)) unitInput.value = "kg";
+        setQuantityUnit(["kg", "g"].includes(preferredUnit) ? preferredUnit : "kg");
         if (quantityInput) {
-            quantityInput.min = "1";
-            quantityInput.step = "1";
+            quantityInput.min = "0.001";
+            quantityInput.step = "0.001";
         }
-        if (help) help.textContent = "Use grams (g) or kilograms (kg) for this category.";
+        if (help) help.textContent = "Choose kg or g using the switch.";
     } else {
         unitInput.value = "servings";
         if (help) help.textContent = "Food Items use servings.";
@@ -1341,6 +1350,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryInput = document.getElementById("lastbiteItemCategory");
     if (categoryInput) {
         categoryInput.addEventListener("change", () => updateQuantityUnitForCategory(categoryInput.value));
+    document.querySelectorAll(".lastbite-unit-option").forEach((button) => {
+        button.addEventListener("click", () => setQuantityUnit(button.dataset.unit));
+    });
     }
     updateQuantityUnitForCategory(categoryInput?.value || "food");
 
