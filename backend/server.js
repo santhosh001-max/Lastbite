@@ -315,7 +315,7 @@ async function initializeDatabase() {
       name VARCHAR(120) NOT NULL,
       description TEXT NULL,
       category VARCHAR(80) NULL,
-      quantity INT UNSIGNED NOT NULL DEFAULT 1,
+      quantity DECIMAL(10,3) NOT NULL DEFAULT 1,
       unit VARCHAR(30) NOT NULL DEFAULT 'servings',
       price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
       expiry_date DATETIME NULL,
@@ -342,6 +342,9 @@ async function initializeDatabase() {
       UNIQUE KEY uq_users_email (email)
     ) ENGINE=InnoDB
   `);
+
+  // Keep existing production databases compatible with measured inventory quantities.
+  await db.query(`ALTER TABLE food_items MODIFY COLUMN quantity DECIMAL(10,3) NOT NULL DEFAULT 1`);
 
   // Keep existing production databases compatible with the Deliverer role.
   await db.query(`ALTER TABLE users MODIFY COLUMN role ENUM('user','staff','deliverer') NOT NULL DEFAULT 'user'`);
