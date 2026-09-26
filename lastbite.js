@@ -10,6 +10,8 @@ const allSections = [
     'sectionfruits',
     'sectioncereals',
     'sectionfooditemsedit',
+    'sectionfestivalbounties',
+    'sectionbestoffers',
     'sectiondonation',
     'sectionhotels',
     'sectionfooditemsbuy',
