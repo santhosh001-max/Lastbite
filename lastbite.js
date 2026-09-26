@@ -196,18 +196,27 @@ function preparePaymentForFoodButton(button) {
 }
 
 function setupStaticFoodQuantityControls() {
-    const section = document.getElementById("sectionfooditemsbuy");
-    if (!section) return;
+    const sections = [
+        "sectionfooditemsbuy",
+        "sectionvegetables",
+        "sectionfruits",
+        "sectioncereals"
+    ];
 
-    section.querySelectorAll(".dish-card").forEach(card => {
-        if (card.closest(".dynamic-food-card") || card.querySelector(".food-quantity-control")) return;
+    sections.forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
 
-        const orderButton = card.querySelector('button[data-target="#lastbitePaymentModal"]');
-        if (!orderButton) return;
+        section.querySelectorAll(".dish-card").forEach(card => {
+            if (card.closest(".dynamic-food-card") || card.querySelector(".food-quantity-control")) return;
 
-        const control = createQuantityControl(1, "");
-        orderButton.parentElement.insertBefore(control, orderButton);
-        orderButton.classList.add("order-now-btn");
+            const orderButton = card.querySelector('button[data-target="#lastbitePaymentModal"]');
+            if (!orderButton) return;
+
+            const control = createQuantityControl(1, "");
+            orderButton.parentElement.insertBefore(control, orderButton);
+            orderButton.classList.add("order-now-btn");
+        });
     });
 }
 
