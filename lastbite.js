@@ -361,16 +361,26 @@ function preparePaymentForFoodButton(button) {
     const name = nameParagraph ? nameParagraph.textContent.trim() : "Food item";
     const total = price * quantity;
 
-    const summary = ensurePaymentOrderSummary();
-    if (summary) {
-        summary.innerHTML =
-            "<strong>" + escapeHtml(name) + "</strong>" +
-            "<br>Quantity: " + quantity + " " + unit +
-            "<br>Total: Rs. " + total.toFixed(2);
-    }
+    const summary = document.getElementById("lastbiteOrderSummary");
+    const unitPriceEl = document.getElementById("lastbitePaymentUnitPrice");
+    const totalEl = document.getElementById("lastbitePaymentTotal");
+    const displayUnit = unit === "g" ? "g" : (unit === "kg" ? "kg" : "unit");
+    const category = normalizeFoodCategory(card.closest("[data-category]")?.dataset.category || "");
+    const weightCategory = ["vegetables", "fruits", "cereals"].includes(category);
+    const displayPrice = weightCategory && unit === "g" ? price / 1000 : price;
+    const displayTotal = weightCategory && unit === "g" ? displayPrice * quantity : total;
 
-    window.lastbiteSelectedOrder = { name, price, quantity, unit, total };
+    if (summary) summary.classList.remove("d-none");
+    if (unitPriceEl) unitPriceEl.textContent = "₹" + displayPrice.toFixed(2) + " / " + displayUnit;
+    if (totalEl) totalEl.textContent = "₹" + displayTotal.toFixed(2);
+
+    window.lastbiteSelectedOrder = { name, price: displayPrice, quantity, unit, total: displayTotal };
 }
+
+document.addEventListener("click", (event) => {
+    const button = event.target.closest(".order-now-btn");
+    if (button) preparePaymentForFoodButton(button);
+});
 
 function setupStaticFoodQuantityControls() {
     const sections = [
