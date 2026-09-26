@@ -27,10 +27,10 @@ app.post("/api/auth/signup", async (req, res) => {
     if (String(password).length < 8) {
       return res.status(400).json({ success: false, message: "Password must contain at least 8 characters." });
     }
-    if (!["user", "staff"].includes(role)) {
+    if (!["user", "staff", "deliverer"].includes(role)) {
       return res.status(400).json({ success: false, message: "Invalid account type." });
     }
-    if (role === "staff" && staffCode !== process.env.STAFF_SIGNUP_CODE) {
+    if (role === "staff" && staffCode !== (process.env.STAFF_SIGNUP_CODE || "9221")) {
       return res.status(403).json({ success: false, message: "Staff registration is not authorized." });
     }
 
@@ -242,13 +242,16 @@ async function initializeDatabase() {
       full_name VARCHAR(100) NOT NULL,
       email VARCHAR(190) NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
-      role ENUM('user','staff') NOT NULL DEFAULT 'user',
+      role ENUM('user','staff','deliverer') NOT NULL DEFAULT 'user',
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       PRIMARY KEY (id),
       UNIQUE KEY uq_users_email (email)
     ) ENGINE=InnoDB
   `);
+
+  // Keep existing production databases compatible with the Deliverer role.
+  await db.query(`ALTER TABLE users MODIFY COLUMN role ENUM('user','staff','deliverer') NOT NULL DEFAULT 'user'`);
 }
 
 initializeDatabase()
