@@ -611,3 +611,198 @@ body {
         font-size: 12px;
     }
 }
+
+
+/* Festival Bounties + Best Offers consumer pages */
+.lastbite-surplus-page {
+    min-height: 100vh;
+    background: #f7f9fc;
+    padding-top: 92px;
+    padding-bottom: 55px;
+}
+
+.lastbite-surplus-container {
+    padding-top: 30px;
+}
+
+.lastbite-surplus-hero {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-radius: 18px;
+    padding: 28px 30px;
+    margin-bottom: 22px;
+    box-shadow: 0 7px 22px rgba(24, 59, 86, 0.09);
+}
+
+.festival-hero {
+    background: linear-gradient(135deg, #fff7df, #fff0bd);
+    color: #5a3a00;
+}
+
+.offers-hero {
+    background: linear-gradient(135deg, #eaf7ff, #d7efff);
+    color: #073b5c;
+}
+
+.lastbite-surplus-icon {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.78);
+    font-size: 30px;
+}
+
+.lastbite-surplus-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+    opacity: .7;
+    margin-bottom: 4px;
+}
+
+.lastbite-surplus-hero h1 {
+    margin: 0 0 7px;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.lastbite-surplus-hero p {
+    margin: 0;
+    max-width: 800px;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+.lastbite-info-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #e1e7ed;
+    border-left: 5px solid #168344;
+    border-radius: 12px;
+    padding: 15px 18px;
+    color: #607180;
+    box-shadow: 0 4px 13px rgba(24,59,86,.05);
+}
+
+.lastbite-info-strip strong {
+    color: #183b56;
+    white-space: nowrap;
+}
+
+.lastbite-page-heading {
+    color: #183b56;
+    font-size: 25px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.lastbite-page-subheading {
+    color: #71808e;
+    margin-bottom: 8px;
+}
+
+.lastbite-surplus-card {
+    overflow: hidden;
+    height: 100%;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e1e7ed;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.lastbite-surplus-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(24,59,86,.13) !important;
+}
+
+.surplus-card-banner {
+    height: 145px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f5f9, #e4edf3);
+    color: #39708e;
+    font-size: 48px;
+}
+
+.source-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.festival-badge {
+    background: #fff0c2;
+    color: #8a5a00;
+}
+
+.offer-badge {
+    background: #dff3ff;
+    color: #126187;
+}
+
+.lastbite-surplus-card h5 {
+    color: #183b56;
+    font-size: 19px;
+    margin-top: 4px;
+}
+
+.lastbite-surplus-card p {
+    color: #6b7c8c;
+    line-height: 1.5;
+}
+
+.lastbite-surplus-card p strong {
+    color: #526675;
+}
+
+@media (max-width: 767.98px) {
+    .lastbite-surplus-page {
+        padding-top: 82px;
+    }
+
+    .lastbite-surplus-hero {
+        padding: 21px;
+        gap: 14px;
+    }
+
+    .lastbite-surplus-icon {
+        width: 55px;
+        height: 55px;
+        min-width: 55px;
+        border-radius: 14px;
+        font-size: 23px;
+    }
+
+    .lastbite-surplus-hero h1 {
+        font-size: 27px;
+    }
+
+    .lastbite-surplus-hero p {
+        font-size: 14px;
+    }
+
+    .lastbite-info-strip {
+        display: block;
+    }
+
+    .lastbite-info-strip strong {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .surplus-card-banner {
+        height: 125px;
+    }
+}
