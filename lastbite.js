@@ -1389,6 +1389,39 @@ document.addEventListener("DOMContentLoaded", () => {
     loadFoodItemsFromAPI();
     setupStaticFoodQuantityControls();
 
+    document.querySelectorAll(".lastbite-order-unit").forEach((button) => {
+        button.addEventListener("click", () => {
+            const switchBox = button.closest(".lastbite-order-unit-switch");
+            const card = button.closest(".dish-card");
+            const input = card?.querySelector(".food-quantity-input");
+            const unit = button.dataset.unit;
+            switchBox?.querySelectorAll(".lastbite-order-unit").forEach((b) => b.classList.toggle("active", b === button));
+            if (input) {
+                input.step = unit === "g" ? "1" : "0.001";
+                input.min = unit === "g" ? "1" : "0.001";
+                input.value = unit === "g" ? String(Math.max(1, Math.round(Number(input.value) || 1))) : String(Math.max(0.001, Number(input.value) || 1));
+            }
+        });
+    });
+
+    document.querySelectorAll(".static-quantity-minus").forEach((button) => {
+        button.addEventListener("click", () => {
+            const card = button.closest(".dish-card");
+            const input = card?.querySelector(".food-quantity-input");
+            const active = card?.querySelector(".lastbite-order-unit.active")?.dataset.unit || "kg";
+            if (input) input.value = String(Math.max(active === "g" ? 1 : 0.001, Number(input.value || 1) - (active === "g" ? 1 : 0.001)));
+        });
+    });
+
+    document.querySelectorAll(".static-quantity-plus").forEach((button) => {
+        button.addEventListener("click", () => {
+            const card = button.closest(".dish-card");
+            const input = card?.querySelector(".food-quantity-input");
+            const active = card?.querySelector(".lastbite-order-unit.active")?.dataset.unit || "kg";
+            if (input) input.value = String(Number(input.value || 1) + (active === "g" ? 1 : 0.001));
+        });
+    });
+
     const addConfirmBtn = document.getElementById('addFoodItemConfirmButton') ||
         document.querySelector('#exampleModal2 .modal-footer .btn-primary');
     const signupButton = document.getElementById("signupSubmitButton");
