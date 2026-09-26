@@ -346,40 +346,101 @@ function ensurePaymentOrderSummary() {
     return summary;
 }
 
-function preparePaymentForFoodButton(button) {
-    const card = button ? button.closest(".dish-card") : null;
+function getCardCategory(card) {
+    const holder = card?.closest("[data-category]");
+    if (holder?.dataset.category) return normalizeFoodCategory(holder.dataset.category);
+
+    const section = card?.closest("section[id]");
+    const map = {
+        sectionvegetables: "vegetables",
+        sectionfruits: "fruits",
+        sectioncereals: "cereals",
+        sectionfooditemsbuy: "food"
+    };
+    return map[section?.id] || "food";
+}
+
+function getCardPrice(card) {
+    if (!card) return 0;
+    const dataPrice = card.closest(".dynamic-food-card")?.dataset.price;
+    if (dataPrice && Number.isFinite(Number(dataPrice))) return Number(dataPrice);
+
+    const priceHeading = Array.from(card.querySelectorAll("h5")).find(
+        h => h.textContent.trim().toLowerCase() === "price"
+    );
+    const priceText = priceHeading?.nextElementSibling?.textContent || "";
+    const match = priceText.match(/[0-9]+(?:\\.[0-9]+)?/);
+    return match ? Number(match[0]) : 0;
+}
+
+function updatePaymentSummaryFromCard(card) {
     if (!card) return;
 
-    const nameParagraph = card.querySelector("h5 + p");
-    const priceParagraph = Array.from(card.querySelectorAll("h5")).find(h => h.textContent.trim().toLowerCase() === "price");
-    const priceText = priceParagraph && priceParagraph.nextElementSibling
-        ? priceParagraph.nextElementSibling.textContent
-        : "Rs. 0";
-    const price = Number((priceText.match(/[0-9]+(?:\.[0-9]+)?/) || ["0"])[0]);
+    const category = getCardCategory(card);
+    const weightCategory = ["vegetables", "fruits", "cereals"].includes(category);
     const quantity = getCardQuantity(card);
     const unit = getCardUnit(card);
+    const price = getCardPrice(card);
+    const nameParagraph = card.querySelector("h5 + p");
     const name = nameParagraph ? nameParagraph.textContent.trim() : "Food item";
-    const total = price * quantity;
+
+    // Provider prices for measured products are stored/displayed per kg.
+    // Convert only when the consumer chooses grams.
+    const pricePerSelectedUnit = weightCategory && unit === "g" ? price / 1000 : price;
+    const total = pricePerSelectedUnit * quantity;
 
     const summary = document.getElementById("lastbiteOrderSummary");
     const unitPriceEl = document.getElementById("lastbitePaymentUnitPrice");
     const totalEl = document.getElementById("lastbitePaymentTotal");
-    const displayUnit = unit === "g" ? "g" : (unit === "kg" ? "kg" : "unit");
-    const category = normalizeFoodCategory(card.closest("[data-category]")?.dataset.category || "");
-    const weightCategory = ["vegetables", "fruits", "cereals"].includes(category);
-    const displayPrice = weightCategory && unit === "g" ? price / 1000 : price;
-    const displayTotal = weightCategory && unit === "g" ? displayPrice * quantity : total;
 
     if (summary) summary.classList.remove("d-none");
-    if (unitPriceEl) unitPriceEl.textContent = "₹" + displayPrice.toFixed(2) + " / " + displayUnit;
-    if (totalEl) totalEl.textContent = "₹" + displayTotal.toFixed(2);
+    if (unitPriceEl) {
+        unitPriceEl.textContent =
+            "₹" + pricePerSelectedUnit.toFixed(2) + " / " +
+            (weightCategory ? unit : "unit");
+    }
+    if (totalEl) totalEl.textContent = "₹" + total.toFixed(2);
 
-    window.lastbiteSelectedOrder = { name, price: displayPrice, quantity, unit, total: displayTotal };
+    window.lastbiteSelectedOrder = {
+        name,
+        price: pricePerSelectedUnit,
+        quantity,
+        unit: weightCategory ? unit : "servings",
+        total
+    };
+}
+
+function preparePaymentForFoodButton(button) {
+    const card = button ? button.closest(".dish-card") : null;
+    if (!card) return;
+
+    window.lastbiteSelectedOrderCard = card;
+    updatePaymentSummaryFromCard(card);
 }
 
 document.addEventListener("click", (event) => {
     const button = event.target.closest(".order-now-btn");
-    if (button) preparePaymentForFoodButton(button);
+    if (button) {
+        preparePaymentForFoodButton(button);
+        return;
+    }
+
+    const unitButton = event.target.closest(".lastbite-order-unit");
+    if (unitButton) {
+        const card = unitButton.closest(".dish-card");
+        if (card) {
+            window.lastbiteSelectedOrderCard = card;
+            setTimeout(() => updatePaymentSummaryFromCard(card), 0);
+        }
+    }
+});
+
+document.addEventListener("input", (event) => {
+    if (!event.target.classList.contains("food-quantity-input")) return;
+    const card = event.target.closest(".dish-card");
+    if (card && window.lastbiteSelectedOrderCard === card) {
+        updatePaymentSummaryFromCard(card);
+    }
 });
 
 function setupStaticFoodQuantityControls() {
@@ -621,6 +682,7 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
     columnWrapper.className = "col-12 col-md-3 dynamic-food-card";
     columnWrapper.dataset.foodId = item.id;
     columnWrapper.dataset.category = normalizeFoodCategory(item.category);
+    columnWrapper.dataset.price = String(Number(item.price) || 0);
 
     const availableQuantity = getSafeQuantity(item.quantity);
     let actionButton = '<button type="button" class="btn btn-success order-now-btn" data-toggle="modal" data-target="#lastbitePaymentModal" data-whatever="@order">Order now</button>';
