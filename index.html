@@ -847,8 +847,19 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="lastbiteItemQuantity" class="col-form-label">Quantity</label>
-                                        <input type="number" class="form-control" id="lastbiteItemQuantity"
-                                               min="1" step="1" value="1" placeholder="Available quantity">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="lastbiteItemQuantity"
+                                                   min="1" step="1" value="1" placeholder="Quantity">
+                                            <div class="input-group-append">
+                                                <select class="form-control" id="lastbiteItemUnit" aria-label="Quantity unit">
+                                                    <option value="kg">kg</option>
+                                                    <option value="g">g</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <small id="lastbiteQuantityHelp" class="form-text text-muted">
+                                            Vegetables, Fruits and Cereals &amp; Pulses use grams or kilograms.
+                                        </small>
                                     </div>
                                 </form>
                             </div>
