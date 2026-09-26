@@ -262,7 +262,7 @@
                             </button>
                         </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="display('sectionfooditemsedit')">Log In</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="display('sectionstaffcategories')">Log In</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -519,7 +519,70 @@
             </div>
         </div>
     </div>
-    <div id="sectionfooditemsedit">
+    
+    <div id="sectionstaffcategories" class="staff-category-page" style="display:none;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white navbar-bgcolor fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand logo" href="#">
+                    <img src="https://drive.google.com/thumbnail?id=1Yr360ajL9fNRXZTTZ5xUe_KPqPhud0oP" class="logo" alt="AsMr Foods" />
+                </a>
+                <div class="navbar-nav ml-auto">
+                    <button class="btn b2" type="button" onclick="display('sectionhome')">Home Page</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container staff-category-container">
+            <div class="staff-category-heading text-center">
+                <h1>Food Items <span id="staffSelectedCategoryTitle" class="staff-selected-category">Food</span></h1>
+                <p>Select a category to add and manage its food items.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-3 mb-4">
+                    <button type="button" class="staff-category-card" onclick="openStaffFoodCategory('food')" aria-label="Open Food items">
+                        <img src="https://drive.google.com/thumbnail?id=1zWv7eXKFwjyDpvVt7gsBehFx-4aK8tLW" alt="Food">
+                        <span class="staff-category-card-body">
+                            <strong>Food</strong>
+                            <small>Meals, dishes and prepared food</small>
+                        </span>
+                    </button>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3 mb-4">
+                    <button type="button" class="staff-category-card" onclick="openStaffFoodCategory('vegetables')" aria-label="Open Vegetables items">
+                        <img src="https://drive.google.com/thumbnail?id=1ZzhKkeLFkWIs1eN-LobBW_DJl7NN0Gm4" alt="Vegetables">
+                        <span class="staff-category-card-body">
+                            <strong>Vegetables</strong>
+                            <small>Fresh vegetables and cooking essentials</small>
+                        </span>
+                    </button>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3 mb-4">
+                    <button type="button" class="staff-category-card" onclick="openStaffFoodCategory('fruits')" aria-label="Open Fruits items">
+                        <img src="https://drive.google.com/thumbnail?id=1zPUfywoFYyYeJ9Xx7Twd2mGquSfemZ75" alt="Fruits">
+                        <span class="staff-category-card-body">
+                            <strong>Fruits</strong>
+                            <small>Fresh fruits for meals and snacks</small>
+                        </span>
+                    </button>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3 mb-4">
+                    <button type="button" class="staff-category-card" onclick="openStaffFoodCategory('cereals')" aria-label="Open Cereals and Pulses items">
+                        <img src="https://drive.google.com/thumbnail?id=1yJNX-0IndmprtELKoipNRggrTgxjxkMO" alt="Cereals and Pulses">
+                        <span class="staff-category-card-body">
+                            <strong>Cereals &amp; Pulses</strong>
+                            <small>Rice, grains, pulses and pantry essentials</small>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="sectionfooditemsedit">
         <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
             <div class="container-fluid">
                 <a class="navbar-brand logo" href="#"><img src="https://drive.google.com/thumbnail?id=1Yr360ajL9fNRXZTTZ5xUe_KPqPhud0oP" class="logo" /></a>
@@ -547,16 +610,6 @@
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary ml-2" type="button" id="button-addon2" data-toggle="modal" data-target="#exampleModal2" data-whatever="@Add">Add Food Items</button>
                         </div>
-                    </div>
-                    <div class="staff-category-manager mb-4" aria-label="Food categories">
-                        <div class="staff-category-title">Add items by category</div>
-                        <div class="staff-category-list" role="tablist">
-                            <button type="button" class="staff-category-btn active" data-category="food" onclick="filterStaffFoodCategory('food', this)">🍛 Food</button>
-                            <button type="button" class="staff-category-btn" data-category="vegetables" onclick="filterStaffFoodCategory('vegetables', this)">🥦 Vegetables</button>
-                            <button type="button" class="staff-category-btn" data-category="fruits" onclick="filterStaffFoodCategory('fruits', this)">🍎 Fruits</button>
-                            <button type="button" class="staff-category-btn" data-category="cereals" onclick="filterStaffFoodCategory('cereals', this)">🌾 Cereals &amp; Pulses</button>
-                        </div>
-                        <div class="staff-category-hint">Select a category to view and manage its food items.</div>
                     </div>
                 </div>
                 <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
