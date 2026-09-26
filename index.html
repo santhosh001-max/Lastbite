@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="lastbite.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <link rel="stylesheet" href="lastbite.css?v=20260926c" />
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
@@ -547,6 +548,16 @@
                             <button class="btn btn-outline-secondary ml-2" type="button" id="button-addon2" data-toggle="modal" data-target="#exampleModal2" data-whatever="@Add">Add Food Items</button>
                         </div>
                     </div>
+                    <div class="staff-category-manager mb-4" aria-label="Food categories">
+                        <div class="staff-category-title">Add items by category</div>
+                        <div class="staff-category-list" role="tablist">
+                            <button type="button" class="staff-category-btn active" data-category="food" onclick="filterStaffFoodCategory('food', this)">🍛 Food</button>
+                            <button type="button" class="staff-category-btn" data-category="vegetables" onclick="filterStaffFoodCategory('vegetables', this)">🥦 Vegetables</button>
+                            <button type="button" class="staff-category-btn" data-category="fruits" onclick="filterStaffFoodCategory('fruits', this)">🍎 Fruits</button>
+                            <button type="button" class="staff-category-btn" data-category="cereals" onclick="filterStaffFoodCategory('cereals', this)">🌾 Cereals &amp; Pulses</button>
+                        </div>
+                        <div class="staff-category-hint">Select a category to view and manage its food items.</div>
+                    </div>
                 </div>
                 <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -564,9 +575,7 @@
                                         <div class="text-center">
                                             <!-- Hidden actual native file uploader input -->
                                             <input type="file" id="foodItemImageUploader" accept="image/png,image/jpeg,image/webp,image/gif" class="d-none" />
-    <link rel="stylesheet" href="lastbite.css?v=20260926" />
-
-                                            <!-- Interactive visual placeholder wrapper -->
+<!-- Interactive visual placeholder wrapper -->
                                             <button type="button" class="addbutton" id="imageUploadTrigger" style="overflow: hidden; display: inline-flex; align-items: center; justify-content: center; width: 140px; height: 140px;">
                                                 <span id="triggerPlaceholderText">+</span>
                                                 <img id="uploadPreviewThumbnail" alt="Selected food preview" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
@@ -588,6 +597,15 @@
                                                min="0" step="0.01" placeholder="Enter price">
                                     </div>
                                     <div class="form-group">
+                                        <label for="lastbiteItemCategory" class="col-form-label">Category</label>
+                                        <select class="form-control" id="lastbiteItemCategory">
+                                            <option value="food">Food</option>
+                                            <option value="vegetables">Vegetables</option>
+                                            <option value="fruits">Fruits</option>
+                                            <option value="cereals">Cereals &amp; Pulses</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="lastbiteItemQuantity" class="col-form-label">Quantity</label>
                                         <input type="number" class="form-control" id="lastbiteItemQuantity"
                                                min="1" step="1" value="1" placeholder="Available quantity">
@@ -603,7 +621,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://spiceeats.com/wp-content/uploads/2020/07/Mutton-Biryani.jpg" class="img1" />
@@ -619,7 +637,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://www.cookclickndevour.com/wp-content/uploads/2017/08/malabar-parotta-recipe-c.jpg" class="img2" />
@@ -635,7 +653,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://www.cookclickndevour.com/wp-content/uploads/2017/11/ghee-roast-dosa-recipe-b.jpg" class="img3" />
@@ -651,7 +669,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJTdbtwoTkxAjJjgau90Q9-e16uRvxg7eJjg_t9I2Abasd4wHdUF9A7lVJ&s=10" class="img4" />
@@ -667,7 +685,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://vaya.in/recipes/wp-content/uploads/2018/03/idiyapam.jpg" class="img4" />
@@ -683,7 +701,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6adUNGeTVg4T35_hVqi1Rso1TeiCOYVPrjDr-okAKxMtPSGKOgpfWMro&s=10" class="img4" />
@@ -699,7 +717,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://www.licious.in/blog/wp-content/uploads/2022/06/chicken-hyderabadi-biryani-01.jpg" class="img4" />
@@ -715,7 +733,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-3 staff-food-card" data-category="food">
                     <div class="dish-card shadow mb-3 pb-3">
                         <div>
                             <img src="https://cdn1.foodviva.com/static-content/food-images/roti-paratha-recipes/roti-chapati/roti-chapati-1.jpg" class="img4" />
