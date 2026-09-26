@@ -540,9 +540,33 @@ function renderDynamicFoodCards() {
         if (row) row.querySelectorAll(".dynamic-food-card").forEach(card => card.remove());
     });
 
+    const categorySections = {
+        food: "sectionfooditemsbuy",
+        vegetables: "sectionvegetables",
+        fruits: "sectionfruits",
+        cereals: "sectioncereals"
+    };
+
+    Object.entries(categorySections).forEach(([category, sectionId]) => {
+        const section = document.getElementById(sectionId);
+        const row = section ? section.querySelector(".row") : null;
+        if (!row) return;
+
+        row.querySelectorAll(".dynamic-food-card").forEach(card => card.remove());
+
+        const categoryItems = foodItems.filter(item => normalizeFoodCategory(item.category) === category);
+        if (categoryItems.length) {
+            row.querySelectorAll(".dish-card").forEach(card => {
+                if (!card.closest(".dynamic-food-card")) card.closest("[class*='col-']")?.remove();
+            });
+            categoryItems.forEach(item => {
+                appendDishCardToContainer(sectionId, item, "btn-success", "Order now");
+            });
+        }
+    });
+
     foodItems.forEach(item => {
         appendDishCardToContainer("sectionfooditemsedit", item, "btn-danger", "Edit");
-        appendDishCardToContainer("sectionfooditemsbuy", item, "btn-success", "Order now");
     });
 }
 
