@@ -450,6 +450,7 @@ function resetFoodModal() {
     if (closeButton) closeButton.textContent = "Close";
     if (addButton) addButton.disabled = false;
     window.editingFoodItemId = null;
+    window.editingStaticFoodCard = null;
 }
 
 
@@ -494,6 +495,7 @@ function openEditFoodItem(id) {
     const nameInput = document.getElementById("lastbiteItemName");
     const descInput = document.getElementById("lastbiteItemDescription");
     const priceInput = document.getElementById("lastbiteItemPrice");
+    const quantityInput = document.getElementById("lastbiteItemQuantity");
     const categoryInput = document.getElementById("lastbiteItemCategory");
     const previewImg = document.getElementById("uploadPreviewThumbnail");
     const placeholderText = document.getElementById("triggerPlaceholderText");
@@ -528,6 +530,65 @@ function openEditFoodItem(id) {
     if (window.jQuery && modal) window.jQuery(modal).modal("show");
 }
 
+
+
+function openStaticFoodCardEditor(button) {
+    const card = button ? button.closest(".staff-food-card") : null;
+    if (!card) return;
+
+    const nameEl = card.querySelector("h5:nth-of-type(1) + p");
+    const descEl = card.querySelector("h5:nth-of-type(2) + p");
+    const priceEl = card.querySelector("h5:nth-of-type(3) + p");
+    const imageEl = card.querySelector("img");
+
+    const name = nameEl ? nameEl.textContent.trim() : "";
+    const desc = descEl ? descEl.textContent.trim() : "";
+    const priceText = priceEl ? priceEl.textContent.replace(/[^0-9.]/g, "") : "0";
+    const price = Number(priceText) || 0;
+    const img = imageEl ? imageEl.src : "";
+    const category = normalizeFoodCategory(card.dataset.category || "food");
+
+    window.editingStaticFoodCard = card;
+    window.editingFoodItemId = "static-card";
+    currentUploadedImageBase64 = img;
+
+    const modal = document.getElementById("exampleModal2");
+    const title = modal ? modal.querySelector(".modal-title") : null;
+    const nameInput = document.getElementById("lastbiteItemName");
+    const descInput = document.getElementById("lastbiteItemDescription");
+    const priceInput = document.getElementById("lastbiteItemPrice");
+    const quantityInput = document.getElementById("lastbiteItemQuantity");
+    const categoryInput = document.getElementById("lastbiteItemCategory");
+    const previewImg = document.getElementById("uploadPreviewThumbnail");
+    const placeholderText = document.getElementById("triggerPlaceholderText");
+    const statusText = document.getElementById("foodImageUploadStatus");
+
+    if (title) title.textContent = "Edit Food";
+    if (nameInput) nameInput.value = name;
+    if (descInput) descInput.value = desc;
+    if (priceInput) priceInput.value = price;
+    if (quantityInput) quantityInput.value = getSafeQuantity(card.dataset.quantity || 1);
+    if (categoryInput) categoryInput.value = category;
+
+    if (previewImg && img) {
+        previewImg.src = img;
+        previewImg.style.display = "block";
+        previewImg.style.visibility = "visible";
+        previewImg.style.opacity = "1";
+    }
+    if (placeholderText) {
+        placeholderText.classList.add("d-none");
+        placeholderText.style.display = "none";
+    }
+    if (statusText) statusText.textContent = "Current image";
+
+    document.getElementById("addFoodItemConfirmButton")?.classList.add("d-none");
+    document.getElementById("saveFoodItemEditButton")?.classList.remove("d-none");
+    document.getElementById("deleteFoodItemEditButton")?.classList.remove("d-none");
+
+    if (window.jQuery && modal) window.jQuery(modal).modal("show");
+}
+
 async function handleSaveFoodItemEdit() {
     const id = window.editingFoodItemId;
     if (!id) return;
@@ -536,6 +597,7 @@ async function handleSaveFoodItemEdit() {
     const descInput = document.getElementById("lastbiteItemDescription");
     const priceInput = document.getElementById("lastbiteItemPrice");
     const quantityInput = document.getElementById("lastbiteItemQuantity");
+    const categoryInput = document.getElementById("lastbiteItemCategory");
     const saveButton = document.getElementById("saveFoodItemEditButton");
 
     const name = nameInput ? nameInput.value.trim() : "";
@@ -551,6 +613,43 @@ async function handleSaveFoodItemEdit() {
 
     try {
         if (saveButton) { saveButton.disabled = true; saveButton.textContent = "Saving..."; }
+
+        if (window.editingStaticFoodCard && String(id) === "static-card") {
+            const card = window.editingStaticFoodCard;
+            const imageEl = card.querySelector("img");
+            const textEls = card.querySelectorAll(".m-2 h5 + p");
+
+            if (textEls[0]) textEls[0].textContent = name;
+            if (textEls[1]) textEls[1].textContent = desc;
+            if (textEls[2]) textEls[2].textContent = "Rs. " + price.toFixed(2);
+            if (imageEl && currentUploadedImageBase64) imageEl.src = currentUploadedImageBase64;
+
+            card.dataset.category = normalizeFoodCategory(categoryInput.value);
+            card.dataset.quantity = String(quantity);
+
+            if (!card.querySelector(".staff-card-quantity")) {
+                const quantityHeading = document.createElement("h5");
+                quantityHeading.className = "staff-card-quantity";
+                quantityHeading.textContent = "Available Quantity";
+                const quantityValue = document.createElement("p");
+                quantityValue.className = "staff-card-quantity-value";
+                quantityValue.textContent = String(quantity);
+                const action = card.querySelector(".edit-food-btn, .static-edit-food-btn");
+                const content = card.querySelector(".m-2");
+                if (content && action) {
+                    content.insertBefore(quantityHeading, action);
+                    content.insertBefore(quantityValue, action);
+                }
+            } else {
+                const quantityValue = card.querySelector(".staff-card-quantity-value");
+                if (quantityValue) quantityValue.textContent = String(quantity);
+            }
+
+            if (window.jQuery) window.jQuery("#exampleModal2").modal("hide");
+            resetFoodModal();
+            window.editingStaticFoodCard = null;
+            return;
+        }
 
         if (String(id).startsWith("local-")) {
             const locals = getLocalFoodItems().map(item =>
@@ -580,6 +679,16 @@ async function handleSaveFoodItemEdit() {
 async function handleEditModalDelete() {
     const id = window.editingFoodItemId;
     if (!id) return;
+
+    if (window.editingStaticFoodCard && String(id) === "static-card") {
+        if (!confirm("Delete this food item permanently?")) return;
+        window.editingStaticFoodCard.remove();
+        window.editingStaticFoodCard = null;
+        if (window.jQuery) window.jQuery("#exampleModal2").modal("hide");
+        resetFoodModal();
+        return;
+    }
+
     await handleDeleteFoodItem(id, document.getElementById("deleteFoodItemEditButton"));
     if (!foodItems.some(item => String(item.id) === String(id))) {
         if (window.jQuery) window.jQuery("#exampleModal2").modal("hide");
@@ -1115,7 +1224,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (orderButton) preparePaymentForFoodButton(orderButton);
 
         const editButton = event.target.closest(".edit-food-btn");
-        if (editButton) openEditFoodItem(editButton.dataset.foodId);
+        if (editButton) {
+            event.preventDefault();
+            openEditFoodItem(editButton.dataset.foodId);
+            return;
+        }
+
+        const staticEditButton = event.target.closest(".static-edit-food-btn");
+        if (staticEditButton) {
+            event.preventDefault();
+            openStaticFoodCardEditor(staticEditButton);
+        }
     });
 
     const modalElement = document.getElementById("exampleModal2");
