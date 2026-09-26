@@ -913,3 +913,19 @@ body {
 .lastbite-order-unit:focus {
     outline: none;
 }
+
+
+.lastbite-live-price-summary {
+    margin-top: 6px;
+    padding: 7px 9px;
+    border: 1px solid #dee2e6;
+    border-radius: 7px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+}
+.lastbite-live-price-summary strong {
+    font-size: 14px;
+}
