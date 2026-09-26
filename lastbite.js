@@ -83,16 +83,28 @@ function saveLocalFoodItems(items) {
     localStorage.setItem(LOCAL_FOOD_STORAGE_KEY, JSON.stringify(items));
 }
 
+function getDefaultUnitForCategory(category) {
+    return ["vegetables", "fruits", "cereals"].includes(normalizeFoodCategory(category))
+        ? "kg"
+        : "servings";
+}
+
 function mapApiFoodToUiFood(item) {
+    const category = normalizeFoodCategory(item.category);
+    const apiUnit = String(item.unit || "").toLowerCase();
+    const unit = ["vegetables", "fruits", "cereals"].includes(category)
+        ? (["kg", "g"].includes(apiUnit) ? apiUnit : "kg")
+        : "servings";
+
     return {
         id: item.id,
         name: item.name,
         desc: item.description || "Freshly added item.",
         price: Number(item.price) || 0,
         quantity: Math.max(1, Number(item.quantity) || 1),
-        unit: item.unit || "servings",
+        unit,
         img: item.image_url || "https://via.placeholder.com/400x200?text=No+Image",
-        category: normalizeFoodCategory(item.category)
+        category
     };
 }
 
