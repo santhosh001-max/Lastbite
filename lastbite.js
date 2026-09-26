@@ -90,6 +90,7 @@ function mapApiFoodToUiFood(item) {
         desc: item.description || "Freshly added item.",
         price: Number(item.price) || 0,
         quantity: Math.max(1, Number(item.quantity) || 1),
+        unit: item.unit || "servings",
         img: item.image_url || "https://via.placeholder.com/400x200?text=No+Image",
         category: normalizeFoodCategory(item.category)
     };
@@ -105,8 +106,31 @@ function normalizeFoodCategory(category) {
 
 let selectedStaffFoodCategory = "food";
 
+function updateQuantityUnitForCategory(category) {
+    const normalized = normalizeFoodCategory(category);
+    const unitInput = document.getElementById("lastbiteItemUnit");
+    const quantityInput = document.getElementById("lastbiteItemQuantity");
+    const help = document.getElementById("lastbiteQuantityHelp");
+    if (!unitInput) return;
+    const measured = ["vegetables", "fruits", "cereals"].includes(normalized);
+    unitInput.innerHTML = measured
+        ? '<option value="kg">kg</option><option value="g">g</option>'
+        : '<option value="servings">servings</option>';
+    if (measured) {
+        if (!["kg","g"].includes(unitInput.value)) unitInput.value = "kg";
+        if (quantityInput) {
+            quantityInput.min = "1";
+            quantityInput.step = "1";
+        }
+        if (help) help.textContent = "Use grams (g) or kilograms (kg) for this category.";
+    } else {
+        unitInput.value = "servings";
+        if (help) help.textContent = "Food Items use servings.";
+    }
+}
 function filterStaffFoodCategory(category) {
     selectedStaffFoodCategory = normalizeFoodCategory(category);
+    updateQuantityUnitForCategory(selectedStaffFoodCategory);
 
     const section = document.getElementById("sectionfooditemsedit");
     if (!section) return;
@@ -120,6 +144,7 @@ function filterStaffFoodCategory(category) {
     if (categorySelect) {
         categorySelect.value = selectedStaffFoodCategory;
     }
+    updateQuantityUnitForCategory(selectedStaffFoodCategory);
 
     const categoryTitle = document.getElementById("staffSelectedCategoryTitle");
     const foodPageTitle = document.getElementById("staffFoodPageTitle");
@@ -306,6 +331,7 @@ async function getAIPriceRecommendation() {
     const category = normalizeFoodCategory(document.getElementById("lastbiteItemCategory")?.value);
     const quantity = getSafeQuantity(document.getElementById("lastbiteItemQuantity")?.value, 1);
     const currentPrice = Number(document.getElementById("lastbiteItemPrice")?.value) || 0;
+    const unit = document.getElementById("lastbiteItemUnit")?.value || "kg";
     const box = document.getElementById("aiPriceRecommendation");
     const button = document.getElementById("aiPriceSuggestButton");
 
@@ -336,7 +362,7 @@ async function getAIPriceRecommendation() {
 
         const result = await apiRequest("/pricing/recommend", {
             method: "POST",
-            body: JSON.stringify({ name, category, quantity, currentPrice })
+            body: JSON.stringify({ name, category, quantity, unit, currentPrice })
         });
         const data = result.data || {};
         const suggested = Number(data.suggestedPrice) || 0;
@@ -409,6 +435,8 @@ async function saveFoodItemToAPI(item) {
             description: item.desc,
             quantity: getSafeQuantity(item.quantity),
             category: normalizeFoodCategory(item.category),
+            quantity: getSafeQuantity(item.quantity),
+            unit: item.unit || "servings",
             price: item.price,
             image_url: item.img
         })
@@ -492,7 +520,7 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
         '<h5>Description</h5><p>' + escapeHtml(item.desc) + '</p>' +
         '<h5>Price</h5><p>Rs. ' + Number(item.price).toFixed(2) + '</p>' +
         (functionalBtnLabel === "Edit"
-            ? '<h5>Available Quantity</h5><p>' + availableQuantity + '</p>'
+            ? '<h5>Available Quantity</h5><p>' + availableQuantity + ' ' + escapeHtml(item.unit || "servings") + '</p>'
             : '') +
         actionButton +
         '</div></div>';
@@ -516,6 +544,7 @@ async function updateFoodItemToAPI(id, item) {
             name: item.name,
             description: item.desc,
             quantity: getSafeQuantity(item.quantity),
+            unit: item.unit || "servings",
             price: item.price,
             image_url: item.img
         })
@@ -560,7 +589,10 @@ function prepareNewFoodModal() {
     if (descInput) descInput.value = "";
     if (priceInput) priceInput.value = "";
     if (quantityInput) quantityInput.value = "1";
+    const unitInput = document.getElementById("lastbiteItemUnit");
+    if (unitInput) unitInput.value = "servings";
     if (categoryInput) categoryInput.value = "food";
+    updateQuantityUnitForCategory("food");
     if (fileInput) fileInput.value = "";
     currentUploadedImageBase64 = "";
 
@@ -599,7 +631,10 @@ function openEditFoodItem(id) {
     if (descInput) descInput.value = item.desc || "";
     if (priceInput) priceInput.value = Number(item.price) || 0;
     if (categoryInput) categoryInput.value = normalizeFoodCategory(item.category);
+    updateQuantityUnitForCategory(item.category);
     if (quantityInput) quantityInput.value = getSafeQuantity(item.quantity);
+    const unitInput = document.getElementById("lastbiteItemUnit");
+    if (unitInput) unitInput.value = item.unit || "servings";
 
     if (previewImg && item.img) {
         previewImg.src = item.img;
@@ -862,6 +897,7 @@ async function handleAddFoodItem() {
         desc: descInput ? descInput.value.trim() : "Freshly added item.",
         price: price,
         quantity: quantity,
+        unit: unit,
         category: normalizeFoodCategory(document.getElementById("lastbiteItemCategory")?.value),
         img: currentUploadedImageBase64
     };
@@ -892,6 +928,8 @@ async function handleAddFoodItem() {
         if (descInput) descInput.value = "";
         if (priceInput) priceInput.value = "";
         if (quantityInput) quantityInput.value = "1";
+        const unitInputAfterSave = document.getElementById("lastbiteItemUnit");
+        if (unitInputAfterSave) unitInputAfterSave.value = "servings";
         currentUploadedImageBase64 = "";
 
         if (previewImg) {
@@ -1299,6 +1337,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const aiPriceButton = document.getElementById("aiPriceSuggestButton");
     if (aiPriceButton) aiPriceButton.addEventListener("click", getAIPriceRecommendation);
+
+    const categoryInput = document.getElementById("lastbiteItemCategory");
+    if (categoryInput) {
+        categoryInput.addEventListener("change", () => updateQuantityUnitForCategory(categoryInput.value));
+    }
+    updateQuantityUnitForCategory(categoryInput?.value || "food");
 
     const addFoodItemsButton = document.getElementById("button-addon2");
     if (addFoodItemsButton) {
