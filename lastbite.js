@@ -196,12 +196,15 @@ function getSafeQuantity(value, fallback = 1) {
     return Number.isInteger(quantity) && quantity > 0 ? quantity : fallback;
 }
 
-function createQuantityControl(initialQuantity = 1, foodId = "") {
+function createQuantityControl(initialQuantity = 1, foodId = "", unit = "servings") {
     const wrapper = document.createElement("div");
     wrapper.className = "food-quantity-control mt-2 mb-3";
     wrapper.style.display = "flex";
     wrapper.style.alignItems = "center";
     wrapper.style.gap = "8px";
+
+    const measured = ["kg", "g"].includes(String(unit).toLowerCase());
+    let selectedUnit = measured ? String(unit).toLowerCase() : "servings";
 
     const label = document.createElement("span");
     label.textContent = "Quantity:";
@@ -216,31 +219,50 @@ function createQuantityControl(initialQuantity = 1, foodId = "") {
     const input = document.createElement("input");
     input.type = "number";
     input.className = "form-control form-control-sm food-quantity-input";
-    input.min = "1";
-    input.value = String(getSafeQuantity(initialQuantity));
+    input.min = measured ? "0.001" : "1";
+    input.step = measured ? "0.001" : "1";
+    input.value = String(measured ? Math.max(0.001, Number(initialQuantity) || 1) : getSafeQuantity(initialQuantity));
     input.dataset.foodId = foodId;
     input.style.width = "70px";
     input.style.textAlign = "center";
 
-    const plus = document.createElement("button");
-    plus.type = "button";
-    plus.className = "btn btn-outline-secondary btn-sm";
-    plus.textContent = "+";
-    plus.setAttribute("aria-label", "Increase quantity");
+    const unitSwitch = document.createElement("div");
+    unitSwitch.className = "lastbite-order-unit-switch";
+    unitSwitch.innerHTML =
+        '<button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>' +
+        '<button type="button" class="lastbite-order-unit" data-unit="g">g</button>';
+    unitSwitch.style.display = measured ? "flex" : "none";
+
+    const setUnit = (nextUnit) => {
+        selectedUnit = nextUnit;
+        unitSwitch.querySelectorAll(".lastbite-order-unit").forEach((button) => {
+            button.classList.toggle("active", button.dataset.unit === nextUnit);
+        });
+        input.step = nextUnit === "g" ? "1" : "0.001";
+        input.min = nextUnit === "g" ? "1" : "0.001";
+        const current = Number(input.value) || 1;
+        input.value = nextUnit === "g" ? String(Math.max(1, Math.round(current))) : String(Math.max(0.001, current));
+    };
+
+    if (measured) setUnit(selectedUnit);
 
     const normalize = () => {
-        const value = Math.max(1, parseInt(input.value, 10) || 1);
-        input.value = String(value);
+        const value = Number(input.value);
+        input.value = measured
+            ? String(Math.max(selectedUnit === "g" ? 1 : 0.001, Number.isFinite(value) ? value : 1))
+            : String(Math.max(1, parseInt(input.value, 10) || 1));
     };
 
     minus.addEventListener("click", () => {
         normalize();
-        input.value = String(Math.max(1, parseInt(input.value, 10) - 1));
+        const step = selectedUnit === "g" ? 1 : (measured ? 0.001 : 1);
+        input.value = String(Math.max(selectedUnit === "g" ? 1 : 0.001, Number(input.value) - step));
     });
 
     plus.addEventListener("click", () => {
         normalize();
-        input.value = String(parseInt(input.value, 10) + 1);
+        const step = selectedUnit === "g" ? 1 : (measured ? 0.001 : 1);
+        input.value = String(Number(input.value) + step);
     });
 
     input.addEventListener("change", normalize);
@@ -248,8 +270,23 @@ function createQuantityControl(initialQuantity = 1, foodId = "") {
         if (input.value !== "") normalize();
     });
 
-    wrapper.append(label, minus, input, plus);
+    unitSwitch.querySelectorAll(".lastbite-order-unit").forEach((button) => {
+        button.addEventListener("click", () => setUnit(button.dataset.unit));
+    });
+
+    wrapper.append(label, minus, input, plus, unitSwitch);
     return wrapper;
+}
+
+function getCardQuantity(card) {
+    const input = card ? card.querySelector(".food-quantity-input") : null;
+    return getSafeQuantity(input ? input.value : 1);
+}
+
+function getCardUnit(card) {
+    const switchBox = card ? card.querySelector(".lastbite-order-unit-switch") : null;
+    const active = switchBox ? switchBox.querySelector(".lastbite-order-unit.active") : null;
+    return active ? active.dataset.unit : "servings";
 }
 
 function getCardQuantity(card) {
@@ -283,6 +320,7 @@ function preparePaymentForFoodButton(button) {
         : "Rs. 0";
     const price = Number((priceText.match(/[0-9]+(?:\.[0-9]+)?/) || ["0"])[0]);
     const quantity = getCardQuantity(card);
+    const unit = getCardUnit(card);
     const name = nameParagraph ? nameParagraph.textContent.trim() : "Food item";
     const total = price * quantity;
 
@@ -290,11 +328,11 @@ function preparePaymentForFoodButton(button) {
     if (summary) {
         summary.innerHTML =
             "<strong>" + escapeHtml(name) + "</strong>" +
-            "<br>Quantity: " + quantity +
+            "<br>Quantity: " + quantity + " " + unit +
             "<br>Total: Rs. " + total.toFixed(2);
     }
 
-    window.lastbiteSelectedOrder = { name, price, quantity, total };
+    window.lastbiteSelectedOrder = { name, price, quantity, unit, total };
 }
 
 function setupStaticFoodQuantityControls() {
@@ -540,7 +578,7 @@ function appendDishCardToContainer(sectionId, item, structuralBtnClass, function
         const actionArea = columnWrapper.querySelector(".m-2");
         const button = columnWrapper.querySelector(".order-now-btn");
         if (actionArea && button) {
-            const control = createQuantityControl(1, item.id);
+            const control = createQuantityControl(1, item.id, item.unit || "servings");
             actionArea.insertBefore(control, button);
         }
     }
