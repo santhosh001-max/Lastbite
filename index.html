@@ -1383,50 +1383,62 @@
             </div>
         </div>
     </div>
-    <div id="sectiondeliveryboy">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <h4 style="color:green;" class="mt-3 ml-2">DELIVERY DASHBOARD</h4>
+    <div id="sectiondeliveryboy" class="delivery-dashboard-page" style="display:none;">
+        <div class="delivery-dashboard-shell">
+            <div class="delivery-topbar">
+                <div>
+                    <span class="delivery-eyebrow">ASMR FOODS • DELIVERY PARTNER</span>
+                    <h2>Delivery Dashboard</h2>
+                    <p id="deliveryGreeting">Hi Rohit, ready for a run?</p>
                 </div>
-                <div class="col-12">
-                    <h3>Hi Rohit, ready for a run?</h3>
+                <div class="delivery-top-actions">
+                    <button type="button" class="delivery-icon-btn" id="deliveryNotificationBtn" aria-label="Notifications">🔔<span id="deliveryNotificationCount" class="delivery-notification-dot">2</span></button>
+                    <button type="button" class="delivery-availability-btn is-online" id="deliveryAvailabilityBtn">● Online</button>
                 </div>
-                <div class="col-6">
-                    <div class="deliveryboy pl-2 mb-3">
-                        <h4>0</h4>
-                        <p style="color:grey">Active Jobs</p>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="deliveryboy pl-2">
-                        <h4>0</h4>
-                        <p style="color:grey">Completed today</p>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="deliveryboy pl-2">
-                        <h4>Rs.0</h4>
-                        <p style="color:grey">Today's earnings</p>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="deliveryboy pl-2">
-                        <h4>4.9</h4>
-                        <p style="color:grey">Your rating</p>
-                    </div>
-                </div>
-                <div class="col-3 mt-5">
-                    <h5>Assigned deliveries</h5>
-                </div>
-                <div class="col-3 mt-5">
-                    <h5>History</h5>
-                </div>
-                <div class="col-3 mt-5">
-                    <h5>Earnings</h5>
-                </div>
+            </div>
 
-                <div class="col-12 mt-5 pt-5"><button class="btn btn-secondary" onclick="display('sectionhome')">Back</button></div>
+            <div class="delivery-stat-grid">
+                <div class="delivery-stat-card"><div class="delivery-stat-icon">🚚</div><div><strong id="deliveryActiveJobs">0</strong><span>Active Jobs</span></div></div>
+                <div class="delivery-stat-card"><div class="delivery-stat-icon">✓</div><div><strong id="deliveryCompletedToday">0</strong><span>Completed Today</span></div></div>
+                <div class="delivery-stat-card"><div class="delivery-stat-icon">₹</div><div><strong id="deliveryEarningsToday">₹0</strong><span>Today's Earnings</span></div></div>
+                <div class="delivery-stat-card"><div class="delivery-stat-icon">★</div><div><strong id="deliveryRating">4.9</strong><span>Your Rating</span></div></div>
+            </div>
+
+            <div class="delivery-main-grid">
+                <section class="delivery-panel delivery-jobs-panel">
+                    <div class="delivery-panel-head">
+                        <div><h3>Assigned Deliveries</h3><p>Orders waiting for pickup or delivery.</p></div>
+                        <span id="deliveryJobCount" class="delivery-count-badge">0</span>
+                    </div>
+                    <div id="deliveryAssignedList" class="delivery-job-list"></div>
+                    <div id="deliveryEmptyState" class="delivery-empty-state" style="display:none;">
+                        <div class="delivery-empty-icon">📦</div>
+                        <h4>No active deliveries</h4>
+                        <p>New delivery requests will appear here when they are assigned to you.</p>
+                    </div>
+                </section>
+
+                <aside class="delivery-panel delivery-side-panel">
+                    <div class="delivery-panel-head"><div><h3>Quick Actions</h3><p>Manage your delivery work.</p></div></div>
+                    <button type="button" class="delivery-action-btn" onclick="showDeliveryTab('history')">📋 <span>Delivery History</span><b>›</b></button>
+                    <button type="button" class="delivery-action-btn" onclick="showDeliveryTab('earnings')">💰 <span>View Earnings</span><b>›</b></button>
+                    <button type="button" class="delivery-action-btn" onclick="openDeliveryHelp()">❓ <span>Help & Support</span><b>›</b></button>
+                    <div class="delivery-tip-box"><strong>Delivery tip</strong><p>Keep the customer updated when you pick up an order and when you are close to the destination.</p></div>
+                </aside>
+            </div>
+
+            <section class="delivery-panel delivery-tab-panel">
+                <div class="delivery-tabs">
+                    <button type="button" class="delivery-tab active" data-delivery-tab="assigned" onclick="showDeliveryTab('assigned')">Assigned deliveries</button>
+                    <button type="button" class="delivery-tab" data-delivery-tab="history" onclick="showDeliveryTab('history')">History</button>
+                    <button type="button" class="delivery-tab" data-delivery-tab="earnings" onclick="showDeliveryTab('earnings')">Earnings</button>
+                </div>
+                <div id="deliveryTabContent"></div>
+            </section>
+
+            <div class="delivery-footer-actions">
+                <button type="button" class="btn btn-secondary" onclick="display('sectionhome')">← Back to Home</button>
+                <button type="button" class="btn btn-outline-danger" onclick="deliveryLogout()">Log out</button>
             </div>
         </div>
     </div>
