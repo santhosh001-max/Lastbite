@@ -246,7 +246,7 @@ function createQuantityControl(initialQuantity = 1, foodId = "", unit = "serving
         '<button type="button" class="lastbite-order-unit" data-unit="g">g</button>';
     unitSwitch.style.display = measured ? "flex" : "none";
 
-    const setUnit = (nextUnit) => {
+    let setUnit = (nextUnit) => {
         selectedUnit = nextUnit;
         unitSwitch.querySelectorAll(".lastbite-order-unit").forEach((button) => {
             button.classList.toggle("active", button.dataset.unit === nextUnit);
