@@ -851,10 +851,11 @@
                                             <input type="number" class="form-control" id="lastbiteItemQuantity"
                                                    min="1" step="1" value="1" placeholder="Quantity">
                                             <div class="input-group-append">
-                                                <select class="form-control" id="lastbiteItemUnit" aria-label="Quantity unit">
-                                                    <option value="kg">kg</option>
-                                                    <option value="g">g</option>
-                                                </select>
+                                                <div class="lastbite-unit-switch" id="lastbiteUnitSwitch" role="group" aria-label="Quantity unit">
+                                                    <button type="button" class="lastbite-unit-option active" data-unit="kg">kg</button>
+                                                    <button type="button" class="lastbite-unit-option" data-unit="g">g</button>
+                                                </div>
+                                                <input type="hidden" id="lastbiteItemUnit" value="kg">
                                             </div>
                                         </div>
                                         <small id="lastbiteQuantityHelp" class="form-text text-muted">
