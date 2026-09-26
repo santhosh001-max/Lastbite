@@ -305,9 +305,36 @@
             <h1>Vegetables</h1>
             <p class="text-muted">Fresh vegetables available through AsMr Foods.</p>
             <div class="row">
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=600&q=80" alt="Tomatoes"><div class="m-2"><h5>Tomatoes</h5><p>Fresh tomatoes for everyday cooking.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80" alt="Potatoes"><div class="m-2"><h5>Potatoes</h5><p>Fresh potatoes for everyday cooking.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=600&q=80" alt="Carrots"><div class="m-2"><h5>Carrots</h5><p>Fresh carrots for healthy everyday meals.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=600&q=80" alt="Tomatoes"><div class="m-2"><h5>Tomatoes</h5><p>Fresh tomatoes for everyday cooking.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80" alt="Potatoes"><div class="m-2"><h5>Potatoes</h5><p>Fresh potatoes for everyday cooking.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=600&q=80" alt="Carrots"><div class="m-2"><h5>Carrots</h5><p>Fresh carrots for healthy everyday meals.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
             </div>
         </div>
     </div>
@@ -323,9 +350,63 @@
             <h1>Fruits</h1>
             <p class="text-muted">Fresh fruits available through AsMr Foods.</p>
             <div class="row">
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80" alt="Apples"><div class="m-2"><h5>Apples</h5><p>Fresh and ready-to-eat apples.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=600&q=80" alt="Pineapple"><div class="m-2"><h5>Pineapple</h5><p>Fresh pineapple for meals and snacks.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80" alt="Bananas"><div class="m-2"><h5>Bananas</h5><p>Fresh bananas for daily use.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80" alt="Apples"><div class="m-2"><h5>Apples</h5><p>Fresh and ready-to-eat apples.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=600&q=80" alt="Pineapple"><div class="m-2"><h5>Pineapple</h5><p>Fresh pineapple for meals and snacks.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80" alt="Bananas"><div class="m-2"><h5>Bananas</h5><p>Fresh bananas for daily use.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
             </div>
         </div>
     </div>
@@ -341,9 +422,90 @@
             <h1>Cereals &amp; Pulses</h1>
             <p class="text-muted">Essential grains and pulses for everyday meals.</p>
             <div class="row">
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80" alt="Rice"><div class="m-2"><h5>Rice</h5><p>Quality rice for everyday cooking.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20Field%20%28Unsplash%29.jpg?width=600" alt="Wheat"><div class="m-2"><h5>Wheat</h5><p>Quality wheat grains for everyday cooking.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
-                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://commons.wikimedia.org/wiki/Special:FilePath/Urad%20dal%20black%20gram.jpg?width=600" alt="Black Gram"><div class="m-2"><h5>Black Gram</h5><p>Nutritious black gram for everyday meals.</p><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80" alt="Rice"><div class="m-2"><h5>Rice</h5><p>Quality rice for everyday cooking.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://commons.wikimedia.org/wiki/Special:FilePath/Wheat%20Field%20%28Unsplash%29.jpg?width=600" alt="Wheat"><div class="m-2"><h5>Wheat</h5><p>Quality wheat grains for everyday cooking.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
+                <div class="col-12 col-md-4 mb-4"><div class="dish-card shadow p-2 h-100"><img class="img1 w-100" src="https://commons.wikimedia.org/wiki/Special:FilePath/Urad%20dal%20black%20gram.jpg?width=600" alt="Black Gram"><div class="m-2"><h5>Black Gram</h5><p>Nutritious black gram for everyday meals.</p><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><div class="food-quantity-control mt-2 mb-3" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-weight:600;">Quantity:</span>
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-minus" aria-label="Decrease quantity">−</button>
+    <input type="number" class="form-control form-control-sm food-quantity-input" min="0.001" step="0.001" value="1" style="width:70px;text-align:center;">
+    <button type="button" class="btn btn-outline-secondary btn-sm static-quantity-plus" aria-label="Increase quantity">+</button>
+    <div class="lastbite-order-unit-switch" style="display:flex;">
+      <button type="button" class="lastbite-order-unit active" data-unit="kg">kg</button>
+      <button type="button" class="lastbite-order-unit" data-unit="g">g</button>
+    </div>
+  </div><button class="btn btn-success" type="button" data-toggle="modal" data-target="#lastbitePaymentModal">Order now</button></div></div></div>
             </div>
         </div>
     </div>
